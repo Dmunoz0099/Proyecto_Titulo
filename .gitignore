@@ -34,8 +34,6 @@ Thumbs.db
 ~$*
 ~WRL*.tmp
 
-# Configuración local de Claude Code
-.claude/
 
 # Documentos de tesis (se mantienen locales, no se suben al repo)
 docs/
