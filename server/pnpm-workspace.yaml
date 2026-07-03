@@ -1,0 +1,11 @@
+# ============================================================
+#  pnpm-workspace.yaml
+#  En pnpm v11 algunas configuraciones (antes en package.json)
+#  viven aquí. Autorizamos los scripts de build de Prisma para que
+#  "prisma generate" se ejecute automáticamente al instalar.
+#  Sin esto, pnpm los bloquea por seguridad y el cliente no se genera.
+# ============================================================
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true

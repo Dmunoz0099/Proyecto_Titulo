@@ -1,0 +1,3 @@
+# Carpeta por FEATURES (funcionalidades): auth, medicamentos,
+# agenda, bitacora, juegos, etc. Cada feature agrupa sus
+# componentes, llamadas a la API y lógica propia.

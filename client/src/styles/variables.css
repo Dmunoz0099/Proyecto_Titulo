@@ -1,0 +1,62 @@
+/* variables.css -> la paleta y los tokens de diseño como variables CSS.
+   Pensada para adultos mayores: tonos suaves (azules y verdes calmados), fondos
+   claros y buen contraste texto/fondo. Se usan en toda la app con var(--nombre). */
+
+:root {
+  /* colores de marca (azules y verdes calmados) */
+  --color-primario: #4a7c8c;        /* Azul-verdoso sereno (acciones principales) */
+  --color-primario-oscuro: #356270; /* Variante para hover/foco */
+  --color-secundario: #6fa287;      /* Verde salvia suave (apoyo/acentos) */
+  --color-acento: #e0a458;          /* Ámbar cálido y discreto (resaltados) */
+
+  /* fondos (claros y cálidos) */
+  --color-fondo: #f7f4ef;           /* Crema muy claro (fondo general) */
+  --color-superficie: #ffffff;      /* Tarjetas / paneles */
+  --color-superficie-alt: #eef3f1;  /* Fondo alternativo (secciones) */
+
+  /* texto (bien contrastado sobre fondos claros) */
+  --color-texto: #23303a;           /* Casi negro azulado (texto principal) */
+  --color-texto-suave: #4f5d66;     /* Texto secundario, aún legible */
+
+  /* estados (calmados, nada estridente) */
+  --color-exito: #3f7d5a;           /* Verde para "bien"/éxito */
+  --color-alerta: #c2772e;          /* Ámbar para advertencias */
+  --color-error: #b4504a;           /* Rojo terracota apagado para errores */
+
+  /* bordes y sombras */
+  --color-borde: #d9d2c7;           /* Borde suave */
+  --sombra-suave: 0 2px 8px rgba(35, 48, 58, 0.08);
+  --sombra-media: 0 4px 16px rgba(35, 48, 58, 0.12);
+
+  /* tipografía: tamaños grandes para que se lea bien */
+  --fuente-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --texto-xs: 1rem;       /* 16px - el mínimo, nada más chico */
+  --texto-sm: 1.125rem;   /* 18px */
+  --texto-base: 1.25rem;  /* 20px - tamaño de lectura por defecto */
+  --texto-lg: 1.5rem;     /* 24px */
+  --texto-xl: 2rem;       /* 32px - títulos de sección */
+  --texto-2xl: 2.5rem;    /* 40px - títulos principales */
+
+  --peso-normal: 400;
+  --peso-medio: 600;
+  --peso-fuerte: 700;
+
+  /* interlineado amplio, se lee más cómodo */
+  --interlineado: 1.6;
+
+  /* espaciado y áreas de toque (botones grandes y cómodos) */
+  --espacio-xs: 0.5rem;
+  --espacio-sm: 0.75rem;
+  --espacio-md: 1rem;
+  --espacio-lg: 1.5rem;
+  --espacio-xl: 2.5rem;
+
+  /* alto mínimo para las áreas táctiles (accesibilidad) */
+  --area-toque-min: 3.5rem; /* 56px */
+
+  /* esquinas redondeadas suaves, quedan más amables */
+  --radio-sm: 8px;
+  --radio-md: 14px;
+  --radio-lg: 20px;
+}

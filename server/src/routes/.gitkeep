@@ -1,0 +1,3 @@
+# Carpeta de RUTAS.
+# Define los endpoints (URLs) y los conecta con middlewares y
+# controladores. Se montarán en app.js.

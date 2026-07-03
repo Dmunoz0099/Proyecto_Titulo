@@ -1,0 +1,148 @@
+/* global.css -> los estilos base de toda la app. Importa la paleta de variables
+   y define reglas accesibles para adultos mayores: tipografía grande, buen
+   contraste, botones grandes y foco visible. */
+
+/* primero las variables, para poder usarlas más abajo */
+@import './variables.css';
+
+/* reset ligero: box-sizing parejo y sin márgenes por defecto */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* el cuerpo: fuente y tamaño base grandes, buen contraste */
+body {
+  font-family: var(--fuente-base);
+  font-size: var(--texto-base);
+  line-height: var(--interlineado);
+  color: var(--color-texto);
+  background-color: var(--color-fondo);
+  /* suaviza el texto en pantalla */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* títulos grandes y con peso para que destaquen */
+h1 {
+  font-size: var(--texto-2xl);
+  font-weight: var(--peso-fuerte);
+  color: var(--color-primario-oscuro);
+  margin-bottom: var(--espacio-md);
+}
+
+h2 {
+  font-size: var(--texto-xl);
+  font-weight: var(--peso-medio);
+  margin-bottom: var(--espacio-sm);
+}
+
+p {
+  margin-bottom: var(--espacio-sm);
+}
+
+/* utilidad para textos bien grandes */
+.texto-grande {
+  font-size: var(--texto-lg);
+  color: var(--color-texto-suave);
+}
+
+/* botones: solo lo básico. El look de cada botón lo pone el sistema de diseño
+   (cuidamayor.css: .btn, .icon-btn…) o el login. Antes había acá un fondo/min-height
+   global que pisaba esos estilos al portar el diseño de los HTML; lo saqué a propósito. */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+/* foco visible: clave para accesibilidad (teclado). El contorno marca dónde estás. */
+:focus-visible {
+  outline: 3px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
+/* layout de la pantalla de prueba (la de la Fase 1) */
+.contenedor-app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espacio-lg);
+}
+
+/* tarjeta central: fondo blanco, esquinas redondeadas y sombra */
+.tarjeta {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-media);
+  padding: var(--espacio-xl);
+  max-width: 640px;
+  text-align: center;
+}
+
+/* mensajes de estado con colores calmados */
+.estado-ok {
+  color: var(--color-exito);
+  font-weight: var(--peso-medio);
+}
+
+.estado-error {
+  color: var(--color-error);
+  font-weight: var(--peso-medio);
+}
+
+/* formularios accesibles */
+/* columna con buen espacio entre campos */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-md);
+  margin-top: var(--espacio-lg);
+  text-align: left;
+}
+
+/* cada campo apila su label y su input */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-xs);
+}
+
+/* labels grandes y legibles */
+.campo label {
+  font-size: var(--texto-base);
+  font-weight: var(--peso-medio);
+  color: var(--color-texto);
+}
+
+/* inputs grandes y cómodos, con buen contraste y área de toque amplia */
+.campo input {
+  font-family: inherit;
+  font-size: var(--texto-base);
+  min-height: var(--area-toque-min);
+  padding: var(--espacio-sm) var(--espacio-md);
+  color: var(--color-texto);
+  background-color: var(--color-superficie);
+  border: 2px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+}
+
+/* resalto el campo activo con el color primario */
+.campo input:focus {
+  border-color: var(--color-primario);
+}
+
+/* botón a ancho completo dentro del form (pantalla de la Fase 1) */
+.formulario button {
+  width: 100%;
+  margin-top: var(--espacio-sm);
+}
+
+/* cursor para botones deshabilitados (el color lo pone cada sistema) */
+button:disabled {
+  cursor: not-allowed;
+}

@@ -1,0 +1,109 @@
+/* recordatorios.css -> la campana de recordatorios del PACIENTE en la barra de
+   arriba: botón con badge + panel desplegable con la lista de pendientes.
+   Para adultos mayores: badge claro, panel amplio, texto grande y botones de
+   toque generoso. */
+
+.campana-wrap { position: relative; display: flex; }
+
+.campana-btn { position: relative; }
+
+/* badge con el número de pendientes (contraste AA sobre el aviso) */
+.campana-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* capa invisible a pantalla completa: un clic afuera cierra el panel */
+.campana-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+/* el panel que se despliega bajo la campana */
+.campana-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 45;
+  width: min(380px, calc(100vw - 32px));
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-md);
+}
+
+.campana-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.campana-head .tile { width: 48px; height: 48px; }
+.campana-title { font-size: var(--fs-lg); font-weight: 800; color: var(--ink); }
+.campana-sub { font-size: var(--fs-sm); }
+
+.campana-vacio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--sp-4) var(--sp-2);
+  color: var(--ok);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.campana-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.rec-item {
+  display: flex;
+  flex-wrap: wrap; /* las acciones (100% de ancho) caen a la línea de abajo */
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.rec-item .tile { width: 44px; height: 44px; flex: none; }
+.rec-info { flex: 1; min-width: 0; }
+.rec-title { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }
+.rec-detalle { font-size: var(--fs-sm); margin-top: 2px; }
+
+/* acciones apiladas: botones a lo ancho para tocarlos cómodo */
+.rec-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+.rec-acciones .btn { width: 100%; min-height: 48px; font-size: var(--fs-body); }
+
+/* en pantallas angostas el panel ocupa casi todo el ancho */
+@media (max-width: 420px) {
+  .campana-panel { right: -8px; width: calc(100vw - 24px); }
+}

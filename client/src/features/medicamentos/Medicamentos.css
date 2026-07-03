@@ -1,0 +1,76 @@
+/* Medicamentos.css -> estilos portados tal cual del prototipo "Medicamentos.html".
+   La estructura común (card, tile, btn, badge, modal, grid-2…) está en cuidamayor.css. */
+
+.head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: var(--sp-4); }
+.head-row .sub { color: var(--ink-soft); font-size: var(--fs-lg); margin-top: 4px; }
+
+/* pestañas */
+.tabs { display: inline-flex; gap: 6px; background: var(--surface-2); padding: 6px; border-radius: var(--r-pill); margin-bottom: var(--sp-5); flex-wrap: wrap; }
+.tab {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 52px; padding: 0 24px;
+  border: none; background: transparent; cursor: pointer;
+  border-radius: var(--r-pill);
+  font-family: var(--font); font-size: var(--fs-label); font-weight: 700; color: var(--ink-soft);
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.tab:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.tab .count { font-size: var(--fs-sm); background: var(--primary-soft); color: var(--primary-strong); border-radius: var(--r-pill); padding: 2px 10px; }
+
+/* lista de tomas (hoy) */
+.dose { display: flex; align-items: center; gap: 20px; padding: 22px 24px; margin-bottom: var(--sp-3); }
+.dose .when { text-align: center; flex: none; width: 92px; }
+.dose .when .hr { font-size: var(--fs-h2); font-weight: 800; color: var(--ink); line-height: 1; }
+.dose .when .mer { font-size: var(--fs-sm); font-weight: 700; color: var(--ink-faint); text-transform: uppercase; }
+.dose .divider { width: 2px; align-self: stretch; background: var(--line); border-radius: 2px; flex: none; }
+.dose .tile { width: 60px; height: 60px; }
+/* el min-width evita que el nombre se aplaste o se desborde bajo el botón */
+.dose .info { flex: 1; min-width: 150px; }
+.dose .name { font-size: var(--fs-h3); font-weight: 800; }
+.dose .dosage { font-size: var(--fs-lg); color: var(--ink-soft); font-weight: 500; margin-top: 2px; }
+.dose .action { flex: none; }
+.dose.done { background: var(--ok-bg); border-color: color-mix(in oklab, var(--ok), white 66%); }
+.dose.done .administered { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--primary-strong); font-size: var(--fs-lg); }
+.dose.done .administered .ring { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; flex: none; }
+
+/* lista de remedios */
+.med { display: flex; align-items: center; gap: 20px; padding: 22px 24px; margin-bottom: var(--sp-3); }
+.med .tile { width: 60px; height: 60px; }
+.med .info { flex: 1; min-width: 0; }
+.med .name { font-size: var(--fs-h3); font-weight: 800; }
+.med .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; color: var(--ink-soft); font-size: var(--fs-body); font-weight: 600; }
+.med .meta .m { display: inline-flex; align-items: center; gap: 7px; }
+.med .meta .m svg { color: var(--ink-faint); }
+
+/* historial */
+.hist-day { font-size: var(--fs-h3); font-weight: 800; margin: var(--sp-4) 0 var(--sp-3); }
+.hist-day:first-child { margin-top: 0; }
+.hrow { display: flex; align-items: center; gap: 18px; padding: 18px 24px; margin-bottom: 12px; }
+.hrow .time { font-size: var(--fs-lg); font-weight: 800; width: 72px; flex: none; }
+.hrow .info { flex: 1; min-width: 0; }
+.hrow .name { font-size: var(--fs-lg); font-weight: 700; }
+.hrow .by { font-size: var(--fs-sm); color: var(--ink-faint); font-weight: 600; margin-top: 2px; }
+
+/* chips de horario (modal) */
+.time-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.time-chip {
+  min-height: 52px; padding: 0 18px; border-radius: var(--r-pill); border: 2px solid var(--line-strong);
+  background: var(--surface); font-family: var(--font); font-weight: 700; font-size: var(--fs-label); color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.time-chip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary-strong); }
+.time-chip:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* en anchos medianos/chicos el botón de la toma se va a su propia línea (a todo
+   el ancho) en vez de aplastar el nombre del remedio */
+@media (max-width: 780px) {
+  .dose { flex-wrap: wrap; }
+  .dose .action { width: 100%; margin-top: 6px; }
+  .dose .action .btn { width: 100%; }
+}
+@media (max-width: 640px) {
+  .dose .when { width: 70px; }
+  .med { flex-wrap: wrap; }
+}

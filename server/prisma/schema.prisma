@@ -1,0 +1,197 @@
+// ============================================================
+//  schema.prisma
+//  Define el modelo de datos que Prisma usa para generar el
+//  cliente y (opcionalmente) crear las tablas mediante migraciones.
+//  provider = postgresql porque Supabase ES PostgreSQL por dentro.
+// ============================================================
+
+// generator: genera el cliente JavaScript de Prisma que importamos
+// en el backend (PrismaClient).
+generator client {
+  provider = "prisma-client-js"
+}
+
+// datasource: indica a qué base de datos apuntamos.
+//  - url       -> conexión normal de la app (pooler de Supabase).
+//  - directUrl -> conexión directa SOLO para migraciones.
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================
+//  ENUMS (tipos enumerados)
+// ============================================================
+
+// Rol del usuario dentro de la plataforma.
+enum Rol {
+  PACIENTE // Adulto mayor: vista simple y accesible.
+  CUIDADOR // Registra datos del día a día.
+  FAMILIAR // Monitorea de forma remota.
+}
+
+// Estado de ánimo registrado en la bitácora diaria.
+enum EstadoAnimo {
+  BIEN
+  NEUTRAL
+  MAL
+}
+
+// ============================================================
+//  MODELOS (tablas)
+// ============================================================
+
+// Usuario que inicia sesión en la plataforma. Puede estar
+// asociado opcionalmente a un AdultoMayor (al que cuida/monitorea
+// o que él mismo representa si es PACIENTE).
+model Usuario {
+  id            String   @id @default(uuid()) @db.Uuid
+  nombre        String
+  // Nombre de usuario para iniciar sesión. Pensado para adultos
+  // mayores que pueden no recordar (o no tener) un correo. Es único.
+  nombreUsuario String   @unique
+  // Email OPCIONAL: útil para cuidadores/familiares y a futuro para
+  // recuperar la contraseña. Sigue siendo único cuando está presente
+  // (PostgreSQL permite varios NULL en una columna UNIQUE).
+  email         String?  @unique
+  password      String
+  rol           Rol
+  adultoMayorId String?  @db.Uuid
+  creadoEn      DateTime @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor?          @relation(fields: [adultoMayorId], references: [id])
+  registros   RegistroMedicamento[] // Registros de medicación que este usuario hizo.
+  bitacoras   EntradaBitacora[] // Entradas de bitácora escritas por este usuario.
+  // Alertas SOS que este usuario generó (si es PACIENTE) y las que
+  // atendió (si es CUIDADOR/FAMILIAR). Dos relaciones distintas hacia
+  // AlertaSos, por eso van con nombre.
+  alertasCreadas   AlertaSos[] @relation("AlertaCreador")
+  alertasAtendidas AlertaSos[] @relation("AlertaResponsable")
+}
+
+// Adulto mayor: la persona cuidada. Es el centro del modelo:
+// medicamentos, agenda, familiares, bitácora y juegos cuelgan de aquí.
+model AdultoMayor {
+  id              String    @id @default(uuid()) @db.Uuid
+  nombre          String
+  fechaNacimiento DateTime?
+  notas           String?
+  creadoEn        DateTime  @default(now())
+
+  // Relaciones inversas (un adulto mayor tiene muchos de cada uno).
+  usuarios      Usuario[]
+  medicamentos  Medicamento[]
+  eventos       EventoAgenda[]
+  familiares    Familiar[]
+  bitacoras     EntradaBitacora[]
+  sesionesJuego SesionJuego[]
+  alertas       AlertaSos[]
+}
+
+// Medicamento que debe tomar un adulto mayor.
+model Medicamento {
+  id            String   @id @default(uuid()) @db.Uuid
+  nombre        String
+  dosis         String
+  horario       String
+  observaciones String?
+  activo        Boolean  @default(true)
+  adultoMayorId String   @db.Uuid
+  creadoEn      DateTime @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor           @relation(fields: [adultoMayorId], references: [id])
+  registros   RegistroMedicamento[]
+}
+
+// Registro de una toma de medicamento (si se administró o no).
+model RegistroMedicamento {
+  id              String   @id @default(uuid()) @db.Uuid
+  administrado    Boolean
+  fechaHora       DateTime
+  comentario      String?
+  medicamentoId   String   @db.Uuid
+  registradoPorId String?  @db.Uuid
+
+  // Relaciones
+  medicamento   Medicamento @relation(fields: [medicamentoId], references: [id])
+  registradoPor Usuario?    @relation(fields: [registradoPorId], references: [id])
+}
+
+// Evento de la agenda diaria del adulto mayor (recordatorios).
+model EventoAgenda {
+  id            String   @id @default(uuid()) @db.Uuid
+  titulo        String
+  descripcion   String?
+  hora          DateTime
+  icono         String?
+  adultoMayorId String   @db.Uuid
+  creadoEn      DateTime @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+}
+
+// Familiar asociado a un adulto mayor (contacto / red de apoyo).
+model Familiar {
+  id            String   @id @default(uuid()) @db.Uuid
+  nombre        String
+  relacion      String
+  fotoUrl       String?
+  adultoMayorId String   @db.Uuid
+  creadoEn      DateTime @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+}
+
+// Entrada de bitácora diaria (ánimo, comidas y notas del día).
+model EntradaBitacora {
+  id            String      @id @default(uuid()) @db.Uuid
+  fecha         DateTime
+  animo         EstadoAnimo
+  comidas       String?
+  notas         String?
+  adultoMayorId String      @db.Uuid
+  autorId       String?     @db.Uuid
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+  autor       Usuario?    @relation(fields: [autorId], references: [id])
+}
+
+// Alerta SOS ("Necesito ayuda"). Es una función EXCLUSIVA del PACIENTE:
+// con un botón grande genera una alerta que el CUIDADOR o el FAMILIAR
+// ven en su inicio y marcan como atendida. Así el paciente tiene una
+// acción propia (pedir ayuda) que los otros roles no tienen.
+model AlertaSos {
+  id            String    @id @default(uuid()) @db.Uuid
+  mensaje       String? // Texto opcional; si no, se asume "Necesito ayuda".
+  atendida      Boolean   @default(false)
+  atendidaEn    DateTime? // Cuándo se marcó como atendida.
+  adultoMayorId String    @db.Uuid
+  creadaPorId   String?   @db.Uuid // Paciente que la generó.
+  atendidaPorId String?   @db.Uuid // Cuidador/familiar que la atendió.
+  creadaEn      DateTime  @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+  creadaPor   Usuario?    @relation("AlertaCreador", fields: [creadaPorId], references: [id])
+  atendidaPor Usuario?    @relation("AlertaResponsable", fields: [atendidaPorId], references: [id])
+}
+
+// Sesión de un juego de estimulación cognitiva (resultados).
+model SesionJuego {
+  id               String   @id @default(uuid()) @db.Uuid
+  fecha            DateTime
+  puntaje          Int
+  aciertos         Int
+  errores          Int
+  duracionSegundos Int
+  adultoMayorId    String   @db.Uuid
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+}

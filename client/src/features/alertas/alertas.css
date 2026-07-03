@@ -1,0 +1,85 @@
+/* alertas.css -> estilos del módulo de alertas SOS:
+   - BotonSOS: el botón grande "Necesito ayuda" del PACIENTE.
+   - PanelAlertas: la lista de alertas pendientes del CUIDADOR/FAMILIAR.
+   Para adultos mayores: área de toque enorme y buen contraste. */
+
+/* botón SOS (paciente) */
+.sos { margin-bottom: var(--sp-5); }
+
+.sos-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-5);
+  border: 2px solid color-mix(in oklab, var(--danger), white 55%);
+  border-radius: var(--r-lg);
+  background: var(--danger-bg);
+  color: var(--danger);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.sos-btn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--danger), white 82%);
+  border-color: color-mix(in oklab, var(--danger), white 40%);
+}
+.sos-btn:active { transform: translateY(1px); }
+.sos-btn:focus-visible { outline: 3px solid var(--danger); outline-offset: 3px; }
+.sos-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.sos-ico {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  flex: none;
+  border-radius: var(--r-lg);
+  background: #fff;
+  color: var(--danger);
+  box-shadow: var(--shadow-sm);
+}
+.sos-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sos-title { font-size: var(--fs-h2); font-weight: 800; letter-spacing: -0.01em; line-height: 1.05; }
+.sos-sub { font-size: var(--fs-lg); color: color-mix(in oklab, var(--danger), black 8%); font-weight: 600; }
+
+.sos-modal { max-width: 480px; }
+
+@media (max-width: 560px) {
+  .sos-ico { width: 64px; height: 64px; }
+  .sos-title { font-size: var(--fs-h3); }
+  .sos-sub { font-size: var(--fs-body); }
+}
+
+/* panel de alertas (cuidador / familiar) */
+.alertas {
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+  border-color: color-mix(in oklab, var(--danger), white 60%);
+  background: color-mix(in oklab, var(--danger-bg), white 30%);
+}
+.alertas-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.alertas-head .tile { width: 56px; height: 56px; }
+.alertas-title { font-size: var(--fs-lg); font-weight: 800; color: var(--ink); }
+.alertas-sub { font-size: var(--fs-body); }
+
+.alertas-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.alerta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.alerta-info { min-width: 0; }
+.alerta-msg { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }
+.alerta-meta { font-size: var(--fs-sm); margin-top: 2px; }

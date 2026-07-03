@@ -1,0 +1,8 @@
+# ============================================================
+#  pnpm-workspace.yaml
+#  pnpm v11 bloquea por seguridad los scripts de instalación.
+#  Autorizamos el de esbuild (motor que usa Vite para compilar),
+#  para que se instale correctamente.
+# ============================================================
+allowBuilds:
+  esbuild: true

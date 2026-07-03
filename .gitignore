@@ -1,0 +1,39 @@
+# ============================================================
+#  .gitignore raíz del monorepo
+# ============================================================
+
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Variables de entorno (NUNCA subir secretos ni credenciales)
+.env
+.env.local
+.env.*.local
+
+# Builds del frontend
+client/dist/
+client/.vite/
+
+# Cliente generado por Prisma
+server/node_modules/.prisma/
+server/prisma/generated/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Configuración local de Claude Code
+.claude/
+
+# Documentos de tesis (se mantienen locales, no se suben al repo)
+docs/
+explicación.md
+Plan_proyecto_titulo.md

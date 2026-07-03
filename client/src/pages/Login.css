@@ -1,0 +1,605 @@
+/* Login.css -> estilos de la pantalla de login (diseño "CuidaMayor").
+   Adaptado del diseño entregado: paleta cálida, panel de bienvenida con formas
+   suaves y un formulario grande y accesible. Uso color-mix() para sacar tonos a
+   partir de un único color primario (va en navegadores modernos). */
+
+/* variables propias del login (con nombres distintos a variables.css para no
+   pisar la paleta global del resto de la app) */
+.app {
+  --primary: #2f7d6b;
+  --primary-strong: color-mix(in oklab, var(--primary), black 14%);
+  --primary-soft: color-mix(in oklab, var(--primary), white 86%);
+  --accent2: #5d86b3; /* azul calmado de apoyo */
+  --cream: #fbf8f2; /* fondo cálido claro */
+  --surface: #fffefb; /* superficie del formulario */
+  --ink: #2a2620; /* texto de alto contraste */
+  --ink-soft: #6a635a; /* texto secundario */
+  --line: #e3dccf; /* bordes suaves */
+  --error: #b14b32; /* rojo cálido y amable */
+  --error-bg: #fbeee7;
+  --radius: 18px;
+  --scale: 1; /* escala de texto */
+  --font: 'Hanken Grotesk', system-ui, sans-serif;
+
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--cream);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* panel de bienvenida (el de la izquierda) */
+.brand-panel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(40px, 5vw, 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #1f3b34;
+  background:
+    radial-gradient(120% 90% at 18% 12%, color-mix(in oklab, var(--primary), white 62%), transparent 62%),
+    linear-gradient(158deg,
+      color-mix(in oklab, var(--primary), white 56%) 0%,
+      color-mix(in oklab, var(--accent2), white 58%) 100%);
+}
+
+/* las formas suaves de fondo */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(0.5px);
+}
+.blob.b1 {
+  width: 360px;
+  height: 360px;
+  right: -120px;
+  top: -90px;
+  background: color-mix(in oklab, var(--primary), white 52%);
+  opacity: 0.5;
+}
+.blob.b2 {
+  width: 220px;
+  height: 220px;
+  right: 60px;
+  bottom: -70px;
+  background: color-mix(in oklab, var(--accent2), white 62%);
+  opacity: 0.55;
+}
+.blob.b3 {
+  width: 120px;
+  height: 120px;
+  left: 8%;
+  top: 42%;
+  background: #ffffff;
+  opacity: 0.3;
+}
+
+.brand-lockup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.brand-name {
+  font-size: calc(1.7rem * var(--scale));
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #1c352f;
+}
+.brand-name span {
+  color: color-mix(in oklab, var(--primary), black 12%);
+}
+.brand-tag {
+  font-size: calc(0.98rem * var(--scale));
+  font-weight: 600;
+  color: #2f5249;
+  margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+
+.panel-mid {
+  position: relative;
+  z-index: 1;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+}
+.welcome {
+  position: relative;
+  z-index: 1;
+  max-width: 30ch;
+}
+.welcome h1 {
+  font-size: calc(2.5rem * var(--scale));
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 18px;
+  color: #18302a;
+  text-wrap: balance;
+}
+.welcome p {
+  font-size: calc(1.22rem * var(--scale));
+  line-height: 1.55;
+  font-weight: 500;
+  color: #28453d;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* los destacados de la app */
+.features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.feat .badge {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.65);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 16px -10px rgba(24, 48, 42, 0.5);
+}
+.feat .badge .shape {
+  width: 20px;
+  height: 20px;
+}
+.feat .badge .circle {
+  border-radius: 50%;
+  background: var(--primary);
+}
+.feat .badge .square {
+  border-radius: 6px;
+  background: var(--accent2);
+}
+.feat .badge .diamond {
+  background: color-mix(in oklab, var(--primary), var(--accent2) 50%);
+  border-radius: 4px;
+  transform: rotate(45deg);
+  width: 17px;
+  height: 17px;
+}
+.feat .ft {
+  font-size: calc(1.18rem * var(--scale));
+  font-weight: 700;
+  color: #1c352f;
+}
+
+/* columna del formulario (la de la derecha) */
+.form-col {
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(40px, 6vw, 96px);
+}
+/* en el login no quiero la "tarjeta" con caja (fondo/borde/sombra) de
+   cuidamayor.css: prefiero un formulario abierto que respire sobre el fondo.
+   Subo la especificidad (.app .card) para ganarle al estilo global sin depender
+   del orden de carga. */
+.app .card {
+  width: 100%;
+  max-width: 420px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.card-head-logo {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.form-title {
+  font-size: calc(2.05rem * var(--scale));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+.form-sub {
+  font-size: calc(1.18rem * var(--scale));
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin: 0 0 44px;
+  text-wrap: pretty;
+}
+
+.app form {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.field label {
+  font-size: calc(1.12rem * var(--scale));
+  font-weight: 700;
+  color: var(--ink);
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.field input {
+  width: 100%;
+  height: 64px;
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--primary), white 92%);
+  padding: 0 20px;
+  font-family: var(--font);
+  font-size: calc(1.2rem * var(--scale));
+  font-weight: 500;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.field input::placeholder {
+  color: #a99f90;
+  font-weight: 500;
+}
+.field input:hover {
+  background: color-mix(in oklab, var(--primary), white 88%);
+}
+.field input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary), white 82%);
+}
+.has-toggle input {
+  padding-right: 110px;
+}
+
+/* el botón "Mostrar/Ocultar". Reseteo los estilos globales de <button>
+   (min-height/fondo) para que respete este diseño. */
+.reveal-btn {
+  position: absolute;
+  right: 8px;
+  height: 50px;
+  min-height: 0;
+  min-width: 108px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  color: var(--primary-strong);
+  font-family: var(--font);
+  font-size: calc(1.02rem * var(--scale));
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.reveal-btn:hover {
+  background: color-mix(in oklab, var(--primary), white 84%);
+}
+.reveal-btn:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* campo en estado de error */
+.field.invalid input {
+  border-color: color-mix(in oklab, var(--error), white 40%);
+  background: color-mix(in oklab, var(--error-bg), white 20%);
+}
+.field.invalid input:focus {
+  border-color: var(--error);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--error), white 80%);
+}
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: calc(1rem * var(--scale));
+  font-weight: 600;
+  color: var(--error);
+}
+.field-hint .mark {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--error);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.row-between {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: -6px;
+}
+/* link con pinta de texto (olvidé contraseña / contáctanos) */
+.link {
+  background: none;
+  border: none;
+  min-height: 0;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: calc(1.06rem * var(--scale));
+  font-weight: 700;
+  color: var(--primary-strong);
+  padding: 6px 4px;
+  border-radius: 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}
+.link:hover {
+  background: none;
+  color: var(--primary);
+}
+.link:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* banner de error general (credenciales malas, etc.) */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--error-bg);
+  border: 2px solid color-mix(in oklab, var(--error), white 55%);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 4px;
+}
+.alert .ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--error);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+.alert .txt {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.alert .txt strong {
+  font-size: calc(1.1rem * var(--scale));
+  font-weight: 800;
+  color: #7c331f;
+}
+.alert .txt span {
+  font-size: calc(1.04rem * var(--scale));
+  font-weight: 500;
+  color: #8a4631;
+  line-height: 1.45;
+}
+
+/* el botón principal (iniciar sesión) */
+.btn-primary {
+  height: 68px;
+  min-height: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--font);
+  font-size: calc(1.3rem * var(--scale));
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
+  box-shadow: 0 10px 22px -12px color-mix(in oklab, var(--primary), black 10%);
+}
+.btn-primary:hover {
+  background: var(--primary-strong);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-primary:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+.btn-primary[disabled] {
+  opacity: 0.75;
+  cursor: default;
+  background: var(--primary);
+}
+
+/* el spinner de carga dentro del botón */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.help-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  font-size: calc(1.06rem * var(--scale));
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* la fila de "¿Ya tienes cuenta? / ¿Aún no tienes cuenta?" */
+.signup-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+  font-size: calc(1.1rem * var(--scale));
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* nota informativa debajo de un campo (no es un error) */
+.field-note {
+  font-size: calc(1rem * var(--scale));
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+/* el "(opcional)" al lado del nombre del campo */
+.opcional {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* selector de rol (en el registro) */
+.role-group {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.role-group legend {
+  padding: 0;
+  font-size: calc(1.12rem * var(--scale));
+  font-weight: 700;
+  color: var(--ink);
+}
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* cada opción es una tarjeta grande y fácil de tocar */
+.role-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.role-card:hover {
+  border-color: color-mix(in oklab, var(--line), var(--ink) 18%);
+}
+.role-card.selected {
+  border-color: var(--primary);
+  background: color-mix(in oklab, var(--primary), white 90%);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary), white 80%);
+}
+/* dejo el radio real accesible pero discreto (la tarjeta hace de control) */
+.role-card input[type='radio'] {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.role-card:focus-within {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+.role-emoji {
+  flex: none;
+  font-size: 30px;
+  line-height: 1;
+}
+.role-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.role-title {
+  font-size: calc(1.14rem * var(--scale));
+  font-weight: 700;
+  color: var(--ink);
+}
+.role-desc {
+  font-size: calc(1rem * var(--scale));
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+/* grupo en estado inválido (no eligieron rol) */
+.role-group.invalid .role-card {
+  border-color: color-mix(in oklab, var(--error), white 55%);
+}
+
+.logo {
+  flex: none;
+  display: block;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  .brand-panel {
+    display: none;
+  }
+  .card-head-logo {
+    display: flex;
+  }
+  .form-col {
+    align-items: flex-start;
+    padding-top: 48px;
+  }
+}
+
+/* respeto a quien prefiere menos animación */
+@media (prefers-reduced-motion: reduce) {
+  .app * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
