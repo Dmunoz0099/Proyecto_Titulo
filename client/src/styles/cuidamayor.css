@@ -354,6 +354,15 @@ textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-
      necesita la marca "CuidaMayor" para no cortarse. El aria-label lo mantiene
      accesible aunque no se lea el texto. */
   .appbar-logout-text { display: none; }
+  /* apretamos los márgenes de la barra y la separación logo↔título para que la
+     marca se corra a la izquierda y se vea completa, la "r" incluida */
+  .appbar-inner { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+  .appbar-left { gap: 8px; }
+  .appbar-brand { gap: 6px; }
+  /* y damos aire entre el título y la campana achicando un poco el grupo de la
+     derecha (avatar y separaciones), así la "r" no queda pegada al icono */
+  .appbar-right { gap: 8px; }
+  .user-chip .avatar { width: 40px; height: 40px; font-size: var(--fs-body); }
 }
 
 /* respeto a quien prefiere menos animación */
