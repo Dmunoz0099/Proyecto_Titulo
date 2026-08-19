@@ -1,0 +1,22 @@
+{
+  "name": "cuidamayor-vercel",
+  "version": "1.0.0",
+  "description": "Manifiesto de despliegue en Vercel: junta el frontend (client) y el backend (server) en un solo proyecto. Para desarrollo local sigue usando client/ y server/ por separado.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vercel-build": "prisma generate --schema=server/prisma/schema.prisma && npm --prefix client install && npm --prefix client run build"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}

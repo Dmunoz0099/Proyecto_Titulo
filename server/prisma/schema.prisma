@@ -9,6 +9,10 @@
 // en el backend (PrismaClient).
 generator client {
   provider = "prisma-client-js"
+  // "native" es para tu máquina en dev; "rhel-openssl-3.0.x" es el binario que
+  // necesita el runtime serverless de Vercel (Linux). Sin él, en prod Prisma
+  // no encuentra su query engine y revienta al primer request.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 // datasource: indica a qué base de datos apuntamos.

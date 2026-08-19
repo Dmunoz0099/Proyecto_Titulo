@@ -5,37 +5,31 @@
 // Cuando termina una partida se guarda como SesionJuego y refresco el seguimiento
 // para ver el resultado nuevo al toque.
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
 import { AppBar } from '../../components/layout/AppBar.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { Memorice } from './Memorice.jsx';
 import { Seguimiento } from './Seguimiento.jsx';
 import { registrarSesion, listarSesiones } from '../../api/juegos.js';
+import { useRecurso } from '../../api/cache.js';
 import './juegos.css';
 
 function JuegosPage() {
   const { usuario } = useAuth();
   const puedeJugar = usuario.rol === 'PACIENTE' || usuario.rol === 'CUIDADOR';
 
-  const [sesiones, setSesiones] = useState([]);
-  const [cargando, setCargando] = useState(true);
   const [aviso, setAviso] = useState('');
   const [error, setError] = useState('');
 
-  async function cargarSesiones() {
-    try {
-      setSesiones(await listarSesiones());
-    } catch {
-      // si falla, el seguimiento muestra el estado vacío; no rompo nada
-    } finally {
-      setCargando(false);
-    }
-  }
-
-  useEffect(() => {
-    cargarSesiones();
-  }, []);
+  // las sesiones salen de la caché compartida ('sesiones'): al volver a Calma y
+  // juegos el progreso se ve al instante y se refresca por detrás, sin el
+  // "Cargando…" cada vez que se entra a la pantalla.
+  const {
+    datos: sesiones,
+    cargando,
+    refrescar: refrescarSesiones,
+  } = useRecurso('sesiones', listarSesiones, { inicial: [] });
 
   // al ganar una partida: guardo la sesión y refresco el progreso
   async function alTerminar(resultado) {
@@ -43,7 +37,7 @@ function JuegosPage() {
     try {
       await registrarSesion(resultado);
       setAviso(`¡Partida guardada! Puntaje: ${resultado.puntaje}.`);
-      await cargarSesiones();
+      await refrescarSesiones();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos guardar la partida.');
     }

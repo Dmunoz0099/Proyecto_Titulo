@@ -4,8 +4,10 @@
 
 import { PrismaClient } from '@prisma/client';
 
-// En dev, nodemon recarga el código todo el rato. Guardo la instancia en global
-// para reaprovecharla entre recargas y no ir creando clientes nuevos.
+// En dev, nodemon recarga el código todo el rato. En serverless (Vercel), una
+// misma función "caliente" atiende varios requests reusando el módulo. En ambos
+// casos guardo la instancia en global para reaprovecharla y no ir abriendo
+// clientes (y pools de conexión) nuevos contra Supabase.
 const globalParaPrisma = globalThis;
 
 // si ya hay una en global la uso, si no creo una
@@ -16,7 +18,6 @@ export const prisma =
     log: ['warn', 'error'],
   });
 
-// solo dejo la referencia global fuera de producción
-if (process.env.NODE_ENV !== 'production') {
-  globalParaPrisma.prisma = prisma;
-}
+// la dejo en global siempre: en dev sobrevive a las recargas de nodemon y en
+// prod la comparten las invocaciones calientes de la misma función serverless.
+globalParaPrisma.prisma = prisma;
