@@ -9,8 +9,8 @@ import { prisma } from '../config/prisma.js';
 import { obtenerAdultoMayorId } from './usuario.service.js';
 
 // --- REGISTRAR una sesión (resultado de una partida) ---
-export async function registrarSesion(idUsuario, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function registrarSesion(usuario, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.sesionJuego.create({
     data: {
       fecha: new Date(),
@@ -26,8 +26,8 @@ export async function registrarSesion(idUsuario, datos) {
 // --- LISTAR sesiones del adulto mayor (para el seguimiento) ---
 // de la más nueva a la más vieja. Sirve para cualquier rol: el paciente ve su
 // propio progreso y el cuidador/familiar monitorean.
-export async function listarSesiones(idUsuario) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function listarSesiones(usuario) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.sesionJuego.findMany({
     where: { adultoMayorId },
     orderBy: { fecha: 'desc' },

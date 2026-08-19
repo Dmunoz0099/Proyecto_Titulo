@@ -9,7 +9,7 @@
 // Permisos: añadir/editar/eliminar solo CUIDADOR; marcar toma el CUIDADOR o el
 // PACIENTE; el FAMILIAR solo consulta.
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
 import { AppBar } from '../../components/layout/AppBar.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
@@ -21,6 +21,7 @@ import {
   registrarToma,
   listarTomas,
 } from '../../api/medicamentos.js';
+import { useRecurso } from '../../api/cache.js';
 import MedicamentoModal from './components/MedicamentoModal.jsx';
 import './Medicamentos.css';
 
@@ -258,9 +259,20 @@ function MedicamentosPage() {
   const puedeMarcar = usuario.rol === 'CUIDADOR' || usuario.rol === 'PACIENTE';
 
   const [tab, setTab] = useState('hoy');
-  const [medicamentos, setMedicamentos] = useState([]);
-  const [tomas, setTomas] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  // medicamentos y tomas salen de la caché compartida: al volver a esta página
+  // se ven al instante (incluido lo ya marcado como tomado) y se refrescan por
+  // detrás, en vez de mostrar "Cargando…" y aparecer el estado unos segundos
+  // después. La misma caché la usan la Home y la campana del paciente.
+  const {
+    datos: medicamentos,
+    cargando,
+    refrescar: refrescarMeds,
+  } = useRecurso('medicamentos', listarMedicamentos, { inicial: [] });
+  const {
+    datos: tomas,
+    refrescar: refrescarTomas,
+    mutar: mutarTomas,
+  } = useRecurso('tomas', listarTomas, { inicial: [] });
   const [error, setError] = useState('');
   const [confirmacion, setConfirmacion] = useState('');
   const [marcandoKey, setMarcandoKey] = useState(null);
@@ -273,34 +285,18 @@ function MedicamentosPage() {
     return TONOS[(i < 0 ? 0 : i) % TONOS.length];
   };
 
-  // trae las tomas en una sola petición (no bloquea la lista)
-  async function recargarTomas() {
-    try {
-      setTomas(await listarTomas());
-    } catch {
-      // si fallan las tomas, la lista de remedios igual se ve; no muestro error duro por esto
-    }
-  }
-
-  async function cargar() {
-    setCargando(true);
+  // vuelve a pedir medicamentos + tomas al backend (tras crear/editar/borrar).
+  // refrescarMeds/refrescarTomas actualizan la caché compartida, así el cambio
+  // se ve también en la Home y la campana sin recargar la página.
+  async function recargar() {
     setError('');
     try {
-      // muestro los medicamentos apenas llegan (rápido)...
-      const meds = await listarMedicamentos();
-      setMedicamentos(meds);
-      setCargando(false);
-      // ...y las tomas se cargan de fondo (para "Hoy" e Historial)
-      recargarTomas();
+      await refrescarMeds();
+      refrescarTomas();
     } catch {
       setError('No pudimos cargar los medicamentos. Inténtalo de nuevo.');
-      setCargando(false);
     }
   }
-
-  useEffect(() => {
-    cargar();
-  }, []);
 
   async function guardar(datos) {
     setGuardando(true);
@@ -314,7 +310,7 @@ function MedicamentosPage() {
         setConfirmacion('Medicamento añadido.');
       }
       setModal(null);
-      await cargar();
+      await recargar();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos guardar el medicamento.');
     } finally {
@@ -330,7 +326,7 @@ function MedicamentosPage() {
       await eliminarMedicamento(med.id);
       setConfirmacion(`"${med.nombre}" se quitó de la lista.`);
       setModal(null);
-      await cargar();
+      await recargar();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos eliminar el medicamento.');
     }
@@ -341,8 +337,11 @@ function MedicamentosPage() {
     setError('');
     try {
       // guardo la franja (time) en el comentario para saber qué toma del día se dio
-      await registrarToma(med.id, { administrado: true, comentario: time });
-      await recargarTomas();
+      const toma = await registrarToma(med.id, { administrado: true, comentario: time });
+      // update optimista: meto la toma a la caché en el acto, así la tarjeta
+      // pasa a "tomada" sin esperar; por detrás refresco para dejar todo fino.
+      mutarTomas((prev) => [toma, ...prev]);
+      refrescarTomas();
       setConfirmacion(`Toma de ${med.nombre} (${time}) registrada. ¡Bien hecho!`);
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos registrar la toma.');

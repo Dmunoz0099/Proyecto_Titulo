@@ -7,7 +7,7 @@ import * as juegoService from '../services/juego.service.js';
 // POST /api/juegos/sesiones (PACIENTE o CUIDADOR)
 export async function registrarSesion(req, res, next) {
   try {
-    const sesion = await juegoService.registrarSesion(req.usuario.id, req.body);
+    const sesion = await juegoService.registrarSesion(req.usuario, req.body);
     res.status(201).json(sesion);
   } catch (error) {
     next(error);
@@ -17,7 +17,7 @@ export async function registrarSesion(req, res, next) {
 // GET /api/juegos/sesiones (cualquier rol con sesión)
 export async function listarSesiones(req, res, next) {
   try {
-    const sesiones = await juegoService.listarSesiones(req.usuario.id);
+    const sesiones = await juegoService.listarSesiones(req.usuario);
     res.json(sesiones);
   } catch (error) {
     next(error);

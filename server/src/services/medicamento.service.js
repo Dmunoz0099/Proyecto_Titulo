@@ -24,8 +24,8 @@ async function obtenerMedicamentoPropio(medicamentoId, adultoMayorId) {
 }
 
 // --- LISTAR (medicamentos activos del adulto mayor) ---
-export async function listarActivos(idUsuario) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function listarActivos(usuario) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.medicamento.findMany({
     where: { adultoMayorId, activo: true },
     orderBy: { creadoEn: 'asc' },
@@ -33,8 +33,8 @@ export async function listarActivos(idUsuario) {
 }
 
 // --- CREAR ---
-export async function crear(idUsuario, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function crear(usuario, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.medicamento.create({
     data: {
       nombre: datos.nombre,
@@ -47,8 +47,8 @@ export async function crear(idUsuario, datos) {
 }
 
 // --- ACTUALIZAR ---
-export async function actualizar(idUsuario, medicamentoId, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function actualizar(usuario, medicamentoId, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerMedicamentoPropio(medicamentoId, adultoMayorId);
 
   return prisma.medicamento.update({
@@ -65,8 +65,8 @@ export async function actualizar(idUsuario, medicamentoId, datos) {
 // --- ELIMINAR (borrado lógico con el campo activo) ---
 // No borro la fila: marco activo=false. Así conservo el historial de tomas y
 // más adelante podría reactivarlo.
-export async function eliminar(idUsuario, medicamentoId) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function eliminar(usuario, medicamentoId) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerMedicamentoPropio(medicamentoId, adultoMayorId);
 
   return prisma.medicamento.update({
@@ -78,8 +78,8 @@ export async function eliminar(idUsuario, medicamentoId) {
 // --- REGISTRAR UNA TOMA ---
 // Crea un RegistroMedicamento guardando quién la registró (el usuario logueado)
 // y la fecha/hora exacta del momento.
-export async function registrarToma(idUsuario, medicamentoId, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function registrarToma(usuario, medicamentoId, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerMedicamentoPropio(medicamentoId, adultoMayorId);
 
   return prisma.registroMedicamento.create({
@@ -88,15 +88,15 @@ export async function registrarToma(idUsuario, medicamentoId, datos) {
       comentario: datos.comentario ?? null,
       fechaHora: new Date(),
       medicamentoId,
-      registradoPorId: idUsuario,
+      registradoPorId: usuario.id,
     },
   });
 }
 
 // --- HISTORIAL de tomas de un medicamento ---
 // Las tomas de la más nueva a la más vieja, con el nombre de quién la registró.
-export async function historial(idUsuario, medicamentoId) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function historial(usuario, medicamentoId) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerMedicamentoPropio(medicamentoId, adultoMayorId);
 
   return prisma.registroMedicamento.findMany({
@@ -111,8 +111,8 @@ export async function historial(idUsuario, medicamentoId) {
 // --- TODAS las tomas del adulto mayor (en una sola consulta) ---
 // El front lo usa para armar la pestaña "Hoy" y el historial sin pedir el
 // historial de cada medicamento por separado.
-export async function listarTomas(idUsuario) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function listarTomas(usuario) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
 
   return prisma.registroMedicamento.findMany({
     // filtro por la relación: solo tomas de medicamentos de este adulto mayor

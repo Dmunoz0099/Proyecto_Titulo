@@ -6,9 +6,10 @@
 // Reusa los estilos de la campana de recordatorios para tener un solo look de
 // "campana + panel" en toda la app.
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { listarAlertas, atenderAlerta } from '../../api/alertas.js';
+import { useRecurso } from '../../api/cache.js';
 import '../recordatorios/recordatorios.css';
 
 // una fecha ISO -> "12 jun, 14:05"
@@ -23,13 +24,12 @@ function fechaHora(iso) {
 
 export function CampanaAlertas() {
   const [abierto, setAbierto] = useState(false);
-  const [alertas, setAlertas] = useState([]);
   const [atendiendo, setAtendiendo] = useState(null); // id que estoy atendiendo
 
-  // traigo las alertas. Si falla, la campana queda sin pendientes (nunca rompe la barra).
-  useEffect(() => {
-    listarAlertas().then(setAlertas).catch(() => {});
-  }, []);
+  // las alertas salen de la caché compartida (misma key que usa el panel del
+  // inicio): al navegar aparecen al instante y se refrescan por detrás. Si falla,
+  // la campana queda sin pendientes (nunca rompe la barra).
+  const { datos: alertas, mutar: mutarAlertas } = useRecurso('alertas', listarAlertas, { inicial: [] });
 
   // solo las pendientes cuentan como notificaciones por revisar
   const pendientes = alertas.filter((a) => !a.atendida);
@@ -40,7 +40,7 @@ export function CampanaAlertas() {
     setAtendiendo(id);
     try {
       const actualizada = await atenderAlerta(id);
-      setAlertas((prev) => prev.map((a) => (a.id === id ? { ...a, ...actualizada } : a)));
+      mutarAlertas((prev) => prev.map((a) => (a.id === id ? { ...a, ...actualizada } : a)));
     } catch {
       // si falla, la dejo como pendiente
     } finally {

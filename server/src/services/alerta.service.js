@@ -20,13 +20,13 @@ async function obtenerAlertaPropia(alertaId, adultoMayorId) {
 
 // --- CREAR (solo PACIENTE) ---
 // guarda quién la generó (el usuario logueado) y el momento exacto
-export async function crear(idUsuario, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function crear(usuario, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.alertaSos.create({
     data: {
       mensaje: datos.mensaje ?? null,
       adultoMayorId,
-      creadaPorId: idUsuario,
+      creadaPorId: usuario.id,
     },
   });
 }
@@ -34,8 +34,8 @@ export async function crear(idUsuario, datos) {
 // --- LISTAR (para CUIDADOR / FAMILIAR) ---
 // las alertas del adulto mayor, primero las pendientes y, a igualdad, de la más
 // nueva a la más vieja. Incluye el nombre de quién la generó y quién la atendió.
-export async function listar(idUsuario) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function listar(usuario) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.alertaSos.findMany({
     where: { adultoMayorId },
     orderBy: [{ atendida: 'asc' }, { creadaEn: 'desc' }],
@@ -48,8 +48,8 @@ export async function listar(idUsuario) {
 
 // --- ATENDER (para CUIDADOR / FAMILIAR) ---
 // marca la alerta como atendida, con quién la atendió y cuándo
-export async function atender(idUsuario, alertaId) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function atender(usuario, alertaId) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerAlertaPropia(alertaId, adultoMayorId);
 
   return prisma.alertaSos.update({
@@ -57,7 +57,7 @@ export async function atender(idUsuario, alertaId) {
     data: {
       atendida: true,
       atendidaEn: new Date(),
-      atendidaPorId: idUsuario,
+      atendidaPorId: usuario.id,
     },
   });
 }

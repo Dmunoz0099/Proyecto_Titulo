@@ -7,7 +7,7 @@ import * as medicamentoService from '../services/medicamento.service.js';
 // GET /api/medicamentos
 export async function listar(req, res, next) {
   try {
-    const medicamentos = await medicamentoService.listarActivos(req.usuario.id);
+    const medicamentos = await medicamentoService.listarActivos(req.usuario);
     res.json(medicamentos);
   } catch (error) {
     next(error);
@@ -17,7 +17,7 @@ export async function listar(req, res, next) {
 // POST /api/medicamentos (solo CUIDADOR)
 export async function crear(req, res, next) {
   try {
-    const medicamento = await medicamentoService.crear(req.usuario.id, req.body);
+    const medicamento = await medicamentoService.crear(req.usuario, req.body);
     res.status(201).json(medicamento);
   } catch (error) {
     next(error);
@@ -28,7 +28,7 @@ export async function crear(req, res, next) {
 export async function actualizar(req, res, next) {
   try {
     const medicamento = await medicamentoService.actualizar(
-      req.usuario.id,
+      req.usuario,
       req.params.id,
       req.body
     );
@@ -41,7 +41,7 @@ export async function actualizar(req, res, next) {
 // DELETE /api/medicamentos/:id (solo CUIDADOR) -> borrado lógico
 export async function eliminar(req, res, next) {
   try {
-    await medicamentoService.eliminar(req.usuario.id, req.params.id);
+    await medicamentoService.eliminar(req.usuario, req.params.id);
     res.status(204).end(); // 204 = ok pero sin cuerpo que devolver
   } catch (error) {
     next(error);
@@ -52,7 +52,7 @@ export async function eliminar(req, res, next) {
 export async function registrarToma(req, res, next) {
   try {
     const toma = await medicamentoService.registrarToma(
-      req.usuario.id,
+      req.usuario,
       req.params.id,
       req.body
     );
@@ -66,7 +66,7 @@ export async function registrarToma(req, res, next) {
 export async function historial(req, res, next) {
   try {
     const tomas = await medicamentoService.historial(
-      req.usuario.id,
+      req.usuario,
       req.params.id
     );
     res.json(tomas);
@@ -78,7 +78,7 @@ export async function historial(req, res, next) {
 // GET /api/medicamentos/tomas -> todas las tomas del adulto mayor
 export async function listarTomas(req, res, next) {
   try {
-    const tomas = await medicamentoService.listarTomas(req.usuario.id);
+    const tomas = await medicamentoService.listarTomas(req.usuario);
     res.json(tomas);
   } catch (error) {
     next(error);

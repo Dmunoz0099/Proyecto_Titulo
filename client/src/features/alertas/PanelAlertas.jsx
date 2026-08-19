@@ -5,9 +5,10 @@
 // Marca la diferencia de roles (el paciente no ve este panel; el equipo no tiene
 // el botón de pedir ayuda).
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { listarAlertas, atenderAlerta } from '../../api/alertas.js';
+import { useRecurso } from '../../api/cache.js';
 
 // una fecha ISO -> "12 jun, 14:05"
 function fechaHora(iso) {
@@ -20,23 +21,22 @@ function fechaHora(iso) {
 }
 
 export function PanelAlertas() {
-  const [alertas, setAlertas] = useState([]);
-  const [cargando, setCargando] = useState(true);
   const [atendiendo, setAtendiendo] = useState(null); // id que estoy atendiendo
 
-  useEffect(() => {
-    listarAlertas()
-      .then(setAlertas)
-      .catch(() => {})
-      .finally(() => setCargando(false));
-  }, []);
+  // alertas desde la caché compartida (misma key que la campana): al volver al
+  // inicio se ven al instante y se refrescan por detrás, sin parpadeo.
+  const { datos: alertas, cargando, mutar: mutarAlertas } = useRecurso(
+    'alertas',
+    listarAlertas,
+    { inicial: [] }
+  );
 
   async function marcarAtendida(id) {
     setAtendiendo(id);
     try {
       const actualizada = await atenderAlerta(id);
       // cambio la alerta de la lista por la versión ya atendida
-      setAlertas((prev) => prev.map((a) => (a.id === id ? { ...a, ...actualizada } : a)));
+      mutarAlertas((prev) => prev.map((a) => (a.id === id ? { ...a, ...actualizada } : a)));
     } catch {
       // si falla, la dejo como pendiente
     } finally {

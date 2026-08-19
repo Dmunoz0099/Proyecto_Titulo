@@ -45,7 +45,9 @@ mayores que pueden no tener o no recordar un correo. El email es opcional.
 ## ✨ Funcionalidades
 
 - **Autenticación completa**: registro, login y perfil con JWT; rutas protegidas por
-  rol tanto en el backend como en el frontend.
+  rol tanto en el backend como en el frontend. El token lleva el `adultoMayorId`
+  del usuario, así los endpoints no lo re-consultan en la BD en cada petición
+  (menos viajes de red = respuesta más rápida).
 - **Inicio diferenciado por rol**: el paciente ve su botón SOS y módulos simples;
   cuidador/familiar ven el panel de alertas y la gestión. Incluye un "vistazo de
   hoy" con la próxima toma y la siguiente actividad.
@@ -65,6 +67,11 @@ mayores que pueden no tener o no recordar un correo. El email es opcional.
 - **Centro de notificaciones** (cuidador y familiar): campana en la barra superior
   con las alertas SOS pendientes del adulto mayor; se atienden desde cualquier
   pantalla, sin volver al inicio.
+- **Navegación instantánea**: una caché en memoria del cliente (`api/cache.js`,
+  *stale-while-revalidate*) reutiliza los datos ya traídos, así al ir y volver entre
+  pantallas no se ve "Cargando…" de nuevo; el refresco ocurre por detrás y los
+  cambios (marcar una toma, crear un evento) se reflejan al instante en todas las
+  vistas que comparten esos datos.
 
 ---
 

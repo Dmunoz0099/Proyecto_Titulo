@@ -7,7 +7,7 @@ import * as eventoService from '../services/evento.service.js';
 // GET /api/agenda
 export async function listar(req, res, next) {
   try {
-    const eventos = await eventoService.listar(req.usuario.id);
+    const eventos = await eventoService.listar(req.usuario);
     res.json(eventos);
   } catch (error) {
     next(error);
@@ -17,7 +17,7 @@ export async function listar(req, res, next) {
 // POST /api/agenda (solo CUIDADOR)
 export async function crear(req, res, next) {
   try {
-    const evento = await eventoService.crear(req.usuario.id, req.body);
+    const evento = await eventoService.crear(req.usuario, req.body);
     res.status(201).json(evento);
   } catch (error) {
     next(error);
@@ -28,7 +28,7 @@ export async function crear(req, res, next) {
 export async function actualizar(req, res, next) {
   try {
     const evento = await eventoService.actualizar(
-      req.usuario.id,
+      req.usuario,
       req.params.id,
       req.body
     );
@@ -41,7 +41,7 @@ export async function actualizar(req, res, next) {
 // DELETE /api/agenda/:id (solo CUIDADOR)
 export async function eliminar(req, res, next) {
   try {
-    await eventoService.eliminar(req.usuario.id, req.params.id);
+    await eventoService.eliminar(req.usuario, req.params.id);
     res.status(204).end();
   } catch (error) {
     next(error);

@@ -8,7 +8,7 @@
 // Cada recordatorio se puede resolver (marcar la toma) o avisar al cuidador (crea
 // una alerta que el cuidador/familiar ven en su inicio).
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Icon } from '../../components/ui/Icon.jsx';
 import {
   listarMedicamentos,
@@ -17,6 +17,7 @@ import {
 } from '../../api/medicamentos.js';
 import { listarEventos } from '../../api/agenda.js';
 import { crearAlerta } from '../../api/alertas.js';
+import { useRecurso } from '../../api/cache.js';
 import { horaDeISO } from '../agenda/iconosAgenda.js';
 import './recordatorios.css';
 
@@ -45,20 +46,16 @@ function esHoy(iso) {
 
 export function CampanaRecordatorios() {
   const [abierto, setAbierto] = useState(false);
-  const [medicamentos, setMedicamentos] = useState([]);
-  const [tomas, setTomas] = useState([]);
-  const [eventos, setEventos] = useState([]);
   const [marcando, setMarcando] = useState(null); // key de la toma que estoy marcando
   const [avisando, setAvisando] = useState(null); // key del aviso en curso
   const [avisados, setAvisados] = useState(() => new Set()); // los que ya avisé
 
-  // traigo lo necesario para calcular los recordatorios. Si algo falla, la
-  // campana simplemente no muestra pendientes (nunca rompe).
-  useEffect(() => {
-    listarMedicamentos().then(setMedicamentos).catch(() => {});
-    listarTomas().then(setTomas).catch(() => {});
-    listarEventos().then(setEventos).catch(() => {});
-  }, []);
+  // lo necesario para calcular los recordatorios sale de la caché compartida:
+  // si ya se trajo en la Home o en Medicamentos, acá está al instante. Si algo
+  // falla, la campana simplemente no muestra pendientes (nunca rompe).
+  const { datos: medicamentos } = useRecurso('medicamentos', listarMedicamentos, { inicial: [] });
+  const { datos: tomas, mutar: mutarTomas } = useRecurso('tomas', listarTomas, { inicial: [] });
+  const { datos: eventos } = useRecurso('eventos', listarEventos, { inicial: [] });
 
   // hora actual en minutos desde medianoche
   const ahora = new Date();
@@ -117,8 +114,9 @@ export function CampanaRecordatorios() {
         administrado: true,
         comentario: r.hora,
       });
-      // meto la toma al estado y el recordatorio desaparece solo
-      setTomas((prev) => [{ ...toma }, ...prev]);
+      // meto la toma a la caché compartida y el recordatorio desaparece solo
+      // (y de paso la página de Medicamentos ya la ve marcada)
+      mutarTomas((prev) => [{ ...toma }, ...prev]);
     } catch {
       // si falla, dejo el recordatorio como estaba
     } finally {

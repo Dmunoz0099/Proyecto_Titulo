@@ -29,8 +29,8 @@ async function obtenerEventoPropio(eventoId, adultoMayorId) {
 
 // --- LISTAR (todos los eventos del adulto mayor) ---
 // lo puede ver cualquier rol (paciente, cuidador, familiar)
-export async function listar(idUsuario) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function listar(usuario) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.eventoAgenda.findMany({
     where: { adultoMayorId },
     orderBy: { hora: 'asc' }, // por hora del día
@@ -38,8 +38,8 @@ export async function listar(idUsuario) {
 }
 
 // --- CREAR (solo CUIDADOR) ---
-export async function crear(idUsuario, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function crear(usuario, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.eventoAgenda.create({
     data: {
       titulo: datos.titulo,
@@ -52,8 +52,8 @@ export async function crear(idUsuario, datos) {
 }
 
 // --- ACTUALIZAR (solo CUIDADOR) ---
-export async function actualizar(idUsuario, eventoId, datos) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function actualizar(usuario, eventoId, datos) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerEventoPropio(eventoId, adultoMayorId);
 
   return prisma.eventoAgenda.update({
@@ -70,8 +70,8 @@ export async function actualizar(idUsuario, eventoId, datos) {
 // --- ELIMINAR (solo CUIDADOR) ---
 // acá sí es borrado físico: un evento no tiene historial que valga la pena
 // conservar (a diferencia del medicamento).
-export async function eliminar(idUsuario, eventoId) {
-  const adultoMayorId = await obtenerAdultoMayorId(idUsuario);
+export async function eliminar(usuario, eventoId) {
+  const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerEventoPropio(eventoId, adultoMayorId);
 
   return prisma.eventoAgenda.delete({

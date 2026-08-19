@@ -16,11 +16,17 @@ export function autenticar(req, res, next) {
   const token = cabecera.split(' ')[1];
 
   try {
-    // si el token es válido recupero lo que guardé al firmarlo: { id, rol }
+    // si el token es válido recupero lo que guardé al firmarlo: { id, rol, adultoMayorId }
     const payload = verificarToken(token);
 
-    // lo dejo a mano para el resto de la cadena
-    req.usuario = { id: payload.id, rol: payload.rol };
+    // lo dejo a mano para el resto de la cadena. El adultoMayorId viaja en el
+    // token para no re-consultarlo en cada request; puede venir null en tokens
+    // viejos o cuentas sin vincular (obtenerAdultoMayorId hace el fallback).
+    req.usuario = {
+      id: payload.id,
+      rol: payload.rol,
+      adultoMayorId: payload.adultoMayorId ?? null,
+    };
     next();
   } catch (error) {
     // token trucho, manipulado o vencido

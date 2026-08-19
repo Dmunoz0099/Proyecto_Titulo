@@ -3,13 +3,14 @@
 // a los módulos. Mantengo estructura, clases y paleta del diseño, pero con datos
 // reales del backend y los links a las rutas de la app.
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import { AppBar } from '../components/layout/AppBar.jsx';
 import { Icon } from '../components/ui/Icon.jsx';
 import { listarMedicamentos } from '../api/medicamentos.js';
 import { listarEventos } from '../api/agenda.js';
+import { useRecurso } from '../api/cache.js';
 import { horaDeISO } from '../features/agenda/iconosAgenda.js';
 import { BotonSOS } from '../features/alertas/BotonSOS.jsx';
 import { PanelAlertas } from '../features/alertas/PanelAlertas.jsx';
@@ -93,47 +94,47 @@ function Inicio() {
   // CUIDADOR/FAMILIAR ven el panel de alertas y los módulos de gestión. Cada
   // rol tiene opciones distintas.
   const esPaciente = usuario.rol === 'PACIENTE';
-  const [proximaToma, setProximaToma] = useState(null);
-  const [siguienteActividad, setSiguienteActividad] = useState(null);
-  const [cargando, setCargando] = useState(true);
 
-  // traigo el "vistazo de hoy" del backend. Si algo falla, muestro un texto
-  // neutro (la Home nunca se rompe). Mientras tanto va un "Cargando…" para no
-  // mostrar el texto de "vacío" antes de tiempo.
-  useEffect(() => {
+  // El "vistazo de hoy" sale de medicamentos + agenda. Van por la caché
+  // compartida (useRecurso): si ya se trajeron antes (p. ej. al entrar a esos
+  // módulos), acá aparecen al instante y solo se refrescan por detrás. Así, al
+  // volver a la Home no se ve el "Cargando…" cada vez.
+  const { datos: meds, cargando: cargMeds } = useRecurso(
+    'medicamentos',
+    listarMedicamentos,
+    { inicial: [] }
+  );
+  const { datos: eventos, cargando: cargEventos } = useRecurso(
+    'eventos',
+    listarEventos,
+    { inicial: [] }
+  );
+  const cargando = cargMeds || cargEventos;
+
+  // próxima toma: la que tiene la hora planificada más cercana a "ahora"
+  const proximaToma = useMemo(() => {
+    if (!meds.length) return null;
     const ahora = horaActual();
+    let mejor = null;
+    for (const m of meds) {
+      const horas = horasDeTexto(m.horario);
+      const proxima = horas.find((h) => h >= ahora) || horas[0] || m.horario;
+      if (!mejor || (proxima && proxima >= ahora && proxima < mejor.hora)) {
+        mejor = { med: m, hora: proxima };
+      }
+    }
+    if (!mejor) {
+      mejor = { med: meds[0], hora: horasDeTexto(meds[0].horario)[0] || meds[0].horario };
+    }
+    return mejor;
+  }, [meds]);
 
-    const cargarMeds = listarMedicamentos()
-      .then((meds) => {
-        if (meds.length === 0) return;
-        // elijo la toma cuya próxima hora sea la más cercana a "ahora"
-        let mejor = null;
-        for (const m of meds) {
-          const horas = horasDeTexto(m.horario);
-          const proxima = horas.find((h) => h >= ahora) || horas[0] || m.horario;
-          if (!mejor || (proxima && proxima >= ahora && proxima < mejor.hora)) {
-            mejor = { med: m, hora: proxima };
-          }
-        }
-        if (!mejor) mejor = { med: meds[0], hora: horasDeTexto(meds[0].horario)[0] || meds[0].horario };
-        setProximaToma(mejor);
-      })
-      .catch(() => {});
-
-    const cargarEventos = listarEventos()
-      .then((eventos) => {
-        if (eventos.length === 0) return;
-        const siguiente =
-          eventos.find((e) => horaDeISO(e.hora) >= ahora) || eventos[0];
-        setSiguienteActividad(siguiente);
-      })
-      .catch(() => {});
-
-    // cuando terminan las dos (bien o mal), saco el estado de carga
-    Promise.allSettled([cargarMeds, cargarEventos]).then(() =>
-      setCargando(false)
-    );
-  }, []);
+  // siguiente actividad: la primera cuya hora aún no pasó (o la primera del día)
+  const siguienteActividad = useMemo(() => {
+    if (!eventos.length) return null;
+    const ahora = horaActual();
+    return eventos.find((e) => horaDeISO(e.hora) >= ahora) || eventos[0];
+  }, [eventos]);
 
   return (
     <div className="page">

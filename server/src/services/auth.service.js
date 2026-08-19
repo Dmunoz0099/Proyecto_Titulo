@@ -51,8 +51,15 @@ export async function registrar(datos) {
     },
   });
 
-  // token con lo mínimo: id y rol
-  const token = generarToken({ id: usuario.id, rol: usuario.rol });
+  // token con id, rol y el adultoMayorId. Este último lo mando en el token a
+  // propósito: así el resto de la API no tiene que ir a la BD a buscarlo en cada
+  // request (un viaje de red que, con la base remota, es lo más caro). Ver
+  // obtenerAdultoMayorId().
+  const token = generarToken({
+    id: usuario.id,
+    rol: usuario.rol,
+    adultoMayorId: usuario.adultoMayorId,
+  });
 
   // devolvemos el usuario sin password + el token
   return { usuario: sinPassword(usuario), token };
@@ -76,8 +83,13 @@ export async function login(datos) {
     throw crearError(401, 'Usuario o contraseña incorrectos');
   }
 
-  // todo ok: token y usuario
-  const token = generarToken({ id: usuario.id, rol: usuario.rol });
+  // todo ok: token y usuario. Meto también el adultoMayorId en el token para
+  // ahorrarnos la consulta que antes hacía cada endpoint (ver obtenerAdultoMayorId).
+  const token = generarToken({
+    id: usuario.id,
+    rol: usuario.rol,
+    adultoMayorId: usuario.adultoMayorId,
+  });
   return { usuario: sinPassword(usuario), token };
 }
 

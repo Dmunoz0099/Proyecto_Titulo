@@ -7,7 +7,7 @@
 //    previsualizar la vista del paciente con el selector.
 // El rol manda: PACIENTE y FAMILIAR solo ven la vista grande; el CUIDADOR ve el selector.
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
 import { AppBar } from '../../components/layout/AppBar.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
@@ -18,6 +18,7 @@ import {
   eliminarEvento,
 } from '../../api/agenda.js';
 import { toneDeIcono, horaDeISO } from './iconosAgenda.js';
+import { useRecurso } from '../../api/cache.js';
 import EventoModal from './components/EventoModal.jsx';
 import './Agenda.css';
 
@@ -138,28 +139,19 @@ function AgendaPage() {
   // el cuidador puede alternar entre gestionar y previsualizar; los demás roles
   // ven directo la vista del paciente
   const [view, setView] = useState(esCuidador ? 'cuidador' : 'paciente');
-  const [eventos, setEventos] = useState([]);
-  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [modal, setModal] = useState(null); // null | {} (nuevo) | evento (editando)
 
-  async function cargar() {
-    setCargando(true);
-    setError('');
-    try {
-      const datos = await listarEventos();
-      setEventos(datos);
-    } catch {
-      setError('No pudimos cargar la agenda. Inténtalo de nuevo.');
-    } finally {
-      setCargando(false);
-    }
-  }
-
-  useEffect(() => {
-    cargar();
-  }, []);
+  // los eventos salen de la caché compartida ('eventos'): al volver a la agenda
+  // se ven al instante y se refrescan por detrás. La misma key la usan la Home
+  // (siguiente actividad) y la campana del paciente, así que crear/editar acá se
+  // refleja en todos lados sin recargar la página.
+  const {
+    datos: eventos,
+    cargando,
+    refrescar: refrescarEventos,
+  } = useRecurso('eventos', listarEventos, { inicial: [] });
 
   async function guardar(datos) {
     setGuardando(true);
@@ -171,7 +163,7 @@ function AgendaPage() {
         await crearEvento(datos);
       }
       setModal(null);
-      await cargar();
+      await refrescarEventos();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos guardar la actividad.');
     } finally {
@@ -185,7 +177,7 @@ function AgendaPage() {
     setError('');
     try {
       await eliminarEvento(evento.id);
-      await cargar();
+      await refrescarEventos();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos eliminar la actividad.');
     }
