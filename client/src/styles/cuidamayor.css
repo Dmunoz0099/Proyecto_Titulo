@@ -363,6 +363,10 @@ textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-
      derecha (avatar y separaciones), así la "r" no queda pegada al icono */
   .appbar-right { gap: 8px; }
   .user-chip .avatar { width: 40px; height: 40px; font-size: var(--fs-body); }
+  /* en las sub-páginas (Mis remedios, Mi día, Juegos...) hay botón "volver", que
+     ya lleva a la home igual que el logo. En móvil ese logo sobra y le roba el
+     ancho al título, así que lo escondemos: queda [volver] CuidaMayor sin cortes. */
+  .appbar--con-volver .appbar-brand .logo { display: none; }
 }
 
 /* respeto a quien prefiere menos animación */

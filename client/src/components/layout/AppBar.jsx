@@ -34,7 +34,7 @@ export function AppBar({ volver }) {
   }
 
   return (
-    <header className="appbar">
+    <header className={`appbar${volver ? ' appbar--con-volver' : ''}`}>
       <div className="appbar-inner">
         <div className="appbar-left">
           {/* botón "volver" opcional (ej: de un módulo al Inicio) */}
