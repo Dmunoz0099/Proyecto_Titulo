@@ -103,7 +103,22 @@
 }
 .rec-acciones .btn { width: 100%; min-height: 48px; font-size: var(--fs-body); }
 
-/* en pantallas angostas el panel ocupa casi todo el ancho */
-@media (max-width: 420px) {
-  .campana-panel { right: -8px; width: calc(100vw - 24px); }
+/* en móvil el panel se ancla a la VENTANA, no a la campana. La campana queda en
+   medio de la barra (a su derecha están el avatar y "Cerrar sesión"), así que si
+   lo dejara anclado a ella el panel se desbordaba por la izquierda y cortaba el
+   título y los botones. Fijándolo con left/right iguales ocupa el ancho de la
+   pantalla y siempre se ve completo. */
+@media (max-width: 560px) {
+  .campana-panel {
+    position: fixed;
+    top: 80px; /* justo debajo de la barra superior */
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: calc(100dvh - 96px);
+    overflow-y: auto;
+  }
+  /* que scrollee el panel entero (head + lista) y no la lista por dentro, para
+     no tener dos barras de scroll anidadas */
+  .campana-list { max-height: none; overflow: visible; }
 }
