@@ -72,8 +72,14 @@ export function AppBar({ volver }) {
             </div>
           )}
 
-          <button type="button" className="btn btn-ghost" onClick={manejarCerrarSesion}>
-            Cerrar sesión
+          <button
+            type="button"
+            className="btn btn-ghost appbar-logout"
+            onClick={manejarCerrarSesion}
+            aria-label="Cerrar sesión"
+          >
+            <Icon name="logout" size={22} />
+            <span className="appbar-logout-text">Cerrar sesión</span>
           </button>
         </div>
       </div>
