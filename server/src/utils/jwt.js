@@ -5,10 +5,11 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
 
 // firma un token con el payload que le pase (ej: id y rol del usuario).
-// Expira según JWT_EXPIRES_IN.
-export function generarToken(payload) {
+// Por defecto expira según JWT_EXPIRES_IN, pero se puede pasar otra duración
+// (ej: '30d' cuando el usuario marca "mantener sesión iniciada").
+export function generarToken(payload, expiraEn = config.jwt.expiraEn) {
   return jwt.sign(payload, config.jwt.secreto, {
-    expiresIn: config.jwt.expiraEn,
+    expiresIn: expiraEn,
   });
 }
 

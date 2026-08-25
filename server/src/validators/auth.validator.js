@@ -7,7 +7,9 @@ import { z } from 'zod';
 // minúsculas y solo dejo letras, números, punto, guion y guion bajo, para que
 // sea fácil de dictar/escribir y sin ambigüedades (nada de espacios ni acentos).
 // Ej: "rosa.perez", "rosita_2".
-const nombreUsuario = z
+// se exporta para reusar la misma regla en otros módulos (ej: cuando el cuidador
+// crea la cuenta del paciente en vinculacion.validator.js)
+export const nombreUsuario = z
   .string({ required_error: 'El nombre de usuario es obligatorio' })
   .trim()
   .toLowerCase()
@@ -59,4 +61,7 @@ export const esquemaLogin = z.object({
   password: z
     .string({ required_error: 'La contraseña es obligatoria' })
     .min(1, 'La contraseña es obligatoria'),
+  // "mantener sesión iniciada": si viene true, el token dura más (ver service).
+  // Opcional; si no viene, se asume false.
+  recordar: z.boolean().optional().default(false),
 });

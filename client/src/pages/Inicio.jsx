@@ -244,14 +244,28 @@ function Inicio() {
                 to="/juegos"
               />
             )}
-            <Module
-              tone="primary"
-              icon="users"
-              name="Familia"
-              desc="Contactos y personas de confianza."
-              foot="Próximamente"
-              disabled
-            />
+            {/* el cuidador entra acá a crear la cuenta del adulto mayor y a
+                compartir el código con la familia; el familiar aún no gestiona la
+                red de apoyo, queda "Próximamente" */}
+            {usuario.rol === 'CUIDADOR' ? (
+              <Module
+                tone="primary"
+                icon="users"
+                name="Familia y accesos"
+                desc="Crea la cuenta del adulto mayor y comparte el código con la familia."
+                foot="Abrir"
+                to="/vincular"
+              />
+            ) : (
+              <Module
+                tone="primary"
+                icon="users"
+                name="Familia"
+                desc="Contactos y personas de confianza."
+                foot="Próximamente"
+                disabled
+              />
+            )}
           </div>
         )}
       </main>

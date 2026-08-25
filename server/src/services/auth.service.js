@@ -6,6 +6,7 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/prisma.js';
 import { generarToken } from '../utils/jwt.js';
+import { config } from '../config/config.js';
 import { crearError } from '../utils/errores.js';
 
 // rondas de bcrypt: más = más seguro pero más lento. 10 es lo típico.
@@ -85,11 +86,19 @@ export async function login(datos) {
 
   // todo ok: token y usuario. Meto también el adultoMayorId en el token para
   // ahorrarnos la consulta que antes hacía cada endpoint (ver obtenerAdultoMayorId).
-  const token = generarToken({
-    id: usuario.id,
-    rol: usuario.rol,
-    adultoMayorId: usuario.adultoMayorId,
-  });
+  // Si marcó "mantener sesión iniciada", el token dura más (pensado para el
+  // dispositivo de casa del adulto mayor).
+  const expiraEn = datos.recordar
+    ? config.jwt.expiraEnLargo
+    : config.jwt.expiraEn;
+  const token = generarToken(
+    {
+      id: usuario.id,
+      rol: usuario.rol,
+      adultoMayorId: usuario.adultoMayorId,
+    },
+    expiraEn
+  );
   return { usuario: sinPassword(usuario), token };
 }
 

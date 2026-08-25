@@ -12,13 +12,11 @@ import './Login.css';
 
 // opciones de rol con textos amables para que cualquiera entienda qué elige.
 // El "valor" sí es el del enum del backend.
+// Ojo: el PACIENTE (adulto mayor) NO se registra solo. Su cuenta la crea la
+// persona cuidadora desde dentro de la app (con un usuario y una clave simple),
+// porque no se le pide correo ni que recuerde una contraseña. Por eso acá solo
+// están CUIDADOR y FAMILIAR.
 const ROLES = [
-  {
-    valor: 'PACIENTE',
-    emoji: '🌿',
-    titulo: 'Adulto mayor',
-    desc: 'La persona que recibe el cuidado',
-  },
   {
     valor: 'CUIDADOR',
     emoji: '💚',
@@ -32,6 +30,15 @@ const ROLES = [
     desc: 'Sigue el bienestar de forma remota',
   },
 ];
+
+// qué pasa después de crear la cuenta, según el rol. Lo mostramos apenas eligen
+// uno para que sepan qué esperar (y que el familiar vaya buscando el código
+// antes de toparse con la pantalla que lo pide).
+const SIGUIENTE_PASO = {
+  CUIDADOR: 'Después crearás el perfil de la persona que vas a cuidar.',
+  FAMILIAR:
+    'Necesitarás el código de invitación que te comparta la persona cuidadora.',
+};
 
 // mismo formato de nombre de usuario que valida el backend
 const USUARIO_REGEX = /^[a-z0-9._-]+$/;
@@ -360,6 +367,12 @@ function Registro() {
               {rolEmpty && (
                 <div className="field-hint">
                   <span className="mark">!</span> Elige una opción.
+                </div>
+              )}
+              {/* apenas eligen un rol, adelanto qué viene después de registrarse */}
+              {rol && SIGUIENTE_PASO[rol] && (
+                <div className="field-note siguiente-paso" role="status">
+                  <span aria-hidden="true">👉</span> {SIGUIENTE_PASO[rol]}
                 </div>
               )}
             </fieldset>

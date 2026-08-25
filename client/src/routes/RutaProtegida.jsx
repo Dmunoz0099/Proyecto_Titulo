@@ -1,12 +1,15 @@
 // RutaProtegida.jsx -> envuelve las rutas privadas:
 //  - mientras chequeo la sesión, muestro "Cargando…"
 //  - si no hay usuario, mando a /login
+//  - si la cuenta todavía no está vinculada a un adulto mayor, mando a /vincular
+//    (salvo en la propia página /vincular, que va con exentaVinculo para no hacer
+//    un bucle)
 //  - si la ruta pide ciertos roles y el usuario no los tiene, lo mando al inicio
 
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 
-export function RutaProtegida({ children, roles }) {
+export function RutaProtegida({ children, roles, exentaVinculo = false }) {
   const { usuario, cargando } = useAuth();
 
   // mientras recupero la sesión no decido nada
@@ -21,6 +24,12 @@ export function RutaProtegida({ children, roles }) {
   // sin sesión -> login. "replace" para que el botón Atrás no vuelva a la página protegida.
   if (!usuario) {
     return <Navigate to="/login" replace />;
+  }
+
+  // logueado pero sin adulto mayor asociado -> primero hay que vincular.
+  // La página /vincular se marca exenta para no redirigirse a sí misma.
+  if (!exentaVinculo && !usuario.adultoMayorId) {
+    return <Navigate to="/vincular" replace />;
   }
 
   // la ruta exige roles y el del usuario no está -> inicio

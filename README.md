@@ -40,6 +40,14 @@ Cada rol tiene **acciones propias**, no solo más o menos permisos:
 El inicio de sesión es por **nombre de usuario** (no email), pensado para adultos
 mayores que pueden no tener o no recordar un correo. El email es opcional.
 
+Solo el **CUIDADOR** y el **FAMILIAR** se registran por sí mismos (con contraseña y
+correo opcional). El **PACIENTE** (adulto mayor) **no se registra solo**: su cuenta
+la crea la persona cuidadora desde la app, con un usuario y una **clave simple** y
+**sin correo** (no se le pide recordar contraseñas ni tener email). Al registrarse,
+la cuenta del cuidador/familiar aún no está asociada a nadie: el cuidador crea al
+adulto mayor y obtiene un **código de invitación**; el familiar se conecta al mismo
+adulto mayor tecleando ese código (ver "Vinculación" más abajo).
+
 ---
 
 ## ✨ Funcionalidades
@@ -48,6 +56,21 @@ mayores que pueden no tener o no recordar un correo. El email es opcional.
   rol tanto en el backend como en el frontend. El token lleva el `adultoMayorId`
   del usuario, así los endpoints no lo re-consultan en la BD en cada petición
   (menos viajes de red = respuesta más rápida).
+- **Vinculación cuenta↔adulto mayor por código de invitación**: tras registrarse, el
+  cuidador/familiar pasa por `/vincular`. El cuidador crea al adulto mayor y recibe un
+  código corto (`CM-XXXXX`); el familiar se une al mismo adulto mayor con ese código
+  (sin duplicar datos). Al vincular se re-emite el JWT ya con el vínculo.
+- **Cuenta del paciente creada por el cuidador**: el adulto mayor no se registra solo.
+  Desde "Familia y accesos", el cuidador le crea un usuario con una clave simple (sin
+  correo) y se los entrega; esa cuenta queda ligada al mismo adulto mayor.
+- **Login accesible para el adulto mayor**: (1) **tarjetas de usuario** — el
+  dispositivo recuerda quiénes ya entraron y los muestra como tarjetas grandes con
+  avatar y nombre; se toca la propia y no se teclea el usuario; (2) **PIN numérico** —
+  el paciente entra con un **PIN de 4 números** en un teclado grande (sin escribir
+  texto); el cuidador lo crea y lo puede cambiar desde "Familia y accesos";
+  (3) **"Mantener sesión iniciada"** (activada por defecto) que emite un token de
+  larga duración (30 días), para no volver a iniciar sesión cada día en el
+  dispositivo de casa.
 - **Inicio diferenciado por rol**: el paciente ve su botón SOS y módulos simples;
   cuidador/familiar ven el panel de alertas y la gestión. Incluye un "vistazo de
   hoy" con la próxima toma y la siguiente actividad.
@@ -89,8 +112,8 @@ Proyecto_Titulo/
 │       ├── features/        # agenda, alertas, juegos, medicamentos, recordatorios
 │       ├── context/         # AuthContext (sesión global)
 │       ├── hooks/           # useAuth
-│       ├── pages/           # Login, Registro, Inicio
-│       ├── routes/          # AppRoutes + RutaProtegida (por rol)
+│       ├── pages/           # Login, Registro, Vincular, Inicio
+│       ├── routes/          # AppRoutes + RutaProtegida (por rol y vínculo)
 │       ├── styles/          # Paleta (variables CSS) y estilos CuidaMayor
 │       └── utils/           # Utilidades del frontend
 │
@@ -103,7 +126,7 @@ Proyecto_Titulo/
         ├── config/          # config.js (env) y prisma.js (cliente singleton)
         ├── controllers/     # Reciben req/res y llaman a servicios
         ├── services/        # Lógica de negocio + acceso a datos (Prisma)
-        ├── routes/          # Endpoints (auth, medicamentos, agenda, alertas, juegos)
+        ├── routes/          # Endpoints (auth, vinculacion, medicamentos, agenda, alertas, juegos)
         ├── middlewares/     # autenticar (JWT), autorizar (rol), validar (Zod), errores
         ├── validators/      # Esquemas Zod por módulo
         ├── utils/           # crearError, jwt
@@ -124,6 +147,11 @@ permitidos.
 | POST   | `/auth/registro` | Crear cuenta |
 | POST   | `/auth/login` | Iniciar sesión |
 | GET    | `/auth/perfil` | 🔒 Perfil del usuario autenticado |
+| GET    | `/vinculacion/estado` | 🔒 ¿Cuenta vinculada? (y el código si es CUIDADOR) |
+| POST   | `/vinculacion/paciente` | 🔒 (CUIDADOR) Crear al adulto mayor y obtener código |
+| POST   | `/vinculacion/unir` | 🔒 Unirse a un adulto mayor con el código |
+| POST   | `/vinculacion/cuenta-paciente` | 🔒 (CUIDADOR) Crear la cuenta del paciente (usuario + PIN de 4 números) |
+| POST   | `/vinculacion/pin-paciente` | 🔒 (CUIDADOR) Cambiar el PIN del paciente |
 | GET    | `/medicamentos` | 🔒 Medicamentos activos |
 | POST   | `/medicamentos` | 🔒 (CUIDADOR) Crear |
 | PUT    | `/medicamentos/:id` | 🔒 (CUIDADOR) Actualizar |
@@ -260,8 +288,9 @@ cd server
 pnpm seed
 ```
 
-Crea un adulto mayor (Luis Zapata) con medicamentos y agenda, y estos usuarios
-(contraseña `123456` para todos):
+Crea un adulto mayor (Luis Zapata, con código de invitación `CM-DEMO1`) con
+medicamentos y agenda, y estos usuarios ya vinculados a él (contraseña `123456`
+para todos):
 
 | Usuario  | Rol      |
 | -------- | -------- |
@@ -270,6 +299,12 @@ Crea un adulto mayor (Luis Zapata) con medicamentos y agenda, y estos usuarios
 | `diego`  | FAMILIAR |
 
 > El seed es idempotente: **borra todos los datos existentes** y los vuelve a crear.
+
+> Para probar la **vinculación desde cero** (usuarios reales): regístrate como
+> CUIDADOR → la app te lleva a `/vincular`, creas al adulto mayor y recibes un
+> código. Desde "Familia y accesos" creas además la **cuenta del paciente** (usuario
+> + clave simple). Una cuenta nueva de FAMILIAR se une al mismo adulto mayor con el
+> código. (El rol PACIENTE ya no aparece en el registro público: lo crea el cuidador.)
 
 ---
 

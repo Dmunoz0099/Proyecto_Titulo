@@ -31,12 +31,19 @@ CREATE TYPE "EstadoAnimo" AS ENUM ('BIEN', 'NEUTRAL', 'MAL');
 --  TABLA: AdultoMayor  (se crea primero porque otras la referencian)
 -- ------------------------------------------------------------
 CREATE TABLE "AdultoMayor" (
-  "id"              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  "nombre"          text        NOT NULL,
-  "fechaNacimiento" timestamptz,
-  "notas"           text,
-  "creadoEn"        timestamptz NOT NULL DEFAULT now()
+  "id"               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "nombre"           text        NOT NULL,
+  "fechaNacimiento"  timestamptz,
+  "notas"            text,
+  -- Código corto que el cuidador comparte para que familiares y el paciente
+  -- se vinculen. Único cuando está presente (varios NULL sí se permiten).
+  "codigoInvitacion" text        UNIQUE,
+  "creadoEn"         timestamptz NOT NULL DEFAULT now()
 );
+
+-- Si la tabla AdultoMayor YA existe (base con datos), en vez de recrearla
+-- corre solo esto para sumar la columna del código de invitación:
+--   ALTER TABLE "AdultoMayor" ADD COLUMN "codigoInvitacion" text UNIQUE;
 
 -- ------------------------------------------------------------
 --  TABLA: Usuario

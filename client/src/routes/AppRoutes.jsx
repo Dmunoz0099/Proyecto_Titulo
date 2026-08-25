@@ -4,6 +4,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/Login.jsx';
 import Registro from '../pages/Registro.jsx';
+import Vincular from '../pages/Vincular.jsx';
 import Inicio from '../pages/Inicio.jsx';
 import MedicamentosPage from '../features/medicamentos/MedicamentosPage.jsx';
 import AgendaPage from '../features/agenda/AgendaPage.jsx';
@@ -18,6 +19,17 @@ export function AppRoutes() {
 
       {/* pública: crear cuenta */}
       <Route path="/registro" element={<Registro />} />
+
+      {/* vincular la cuenta a un adulto mayor: necesita sesión, pero va exenta de
+          la guardia de vínculo (si no, se redirigiría a sí misma en bucle) */}
+      <Route
+        path="/vincular"
+        element={
+          <RutaProtegida exentaVinculo>
+            <Vincular />
+          </RutaProtegida>
+        }
+      />
 
       {/* protegida: solo con sesión iniciada */}
       <Route

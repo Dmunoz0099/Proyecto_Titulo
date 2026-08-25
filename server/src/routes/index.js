@@ -3,6 +3,7 @@
 
 import { Router } from 'express';
 import authRoutes from './auth.routes.js';
+import vinculacionRoutes from './vinculacion.routes.js';
 import medicamentoRoutes from './medicamento.routes.js';
 import eventoRoutes from './evento.routes.js';
 import alertaRoutes from './alerta.routes.js';
@@ -12,6 +13,9 @@ const router = Router();
 
 // auth -> /api/auth/...
 router.use('/auth', authRoutes);
+
+// vinculación cuenta<->adulto mayor -> /api/vinculacion/...
+router.use('/vinculacion', vinculacionRoutes);
 
 // medicamentos -> /api/medicamentos/...
 router.use('/medicamentos', medicamentoRoutes);

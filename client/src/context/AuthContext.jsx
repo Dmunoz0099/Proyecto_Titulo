@@ -61,6 +61,24 @@ export function AuthProvider({ children }) {
     return respuesta.usuario;
   }
 
+  // aplicar un vínculo recién hecho: el backend devuelve un token NUEVO (ya con
+  // el adultoMayorId adentro) y el usuario actualizado. Lo guardo igual que en el
+  // login, así la sesión "ve" el vínculo sin tener que volver a entrar.
+  function aplicarVinculo({ usuario: usuarioNuevo, token: tokenNuevo }) {
+    localStorage.setItem('token', tokenNuevo);
+    setToken(tokenNuevo);
+    setUsuario(usuarioNuevo);
+    return usuarioNuevo;
+  }
+
+  // vuelve a pedir el perfil al backend y actualiza el usuario en memoria.
+  // Útil si algo del perfil cambió por fuera del login.
+  async function refrescarPerfil() {
+    const perfil = await authApi.obtenerPerfil();
+    setUsuario(perfil);
+    return perfil;
+  }
+
   // cerrar sesión: limpio todo
   function cerrarSesion() {
     localStorage.removeItem('token');
@@ -69,7 +87,16 @@ export function AuthProvider({ children }) {
   }
 
   // lo que expongo a toda la app
-  const valor = { usuario, token, cargando, iniciarSesion, registrarse, cerrarSesion };
+  const valor = {
+    usuario,
+    token,
+    cargando,
+    iniciarSesion,
+    registrarse,
+    aplicarVinculo,
+    refrescarPerfil,
+    cerrarSesion,
+  };
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }

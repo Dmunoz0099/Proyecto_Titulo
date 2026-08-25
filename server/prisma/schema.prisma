@@ -82,6 +82,10 @@ model AdultoMayor {
   nombre          String
   fechaNacimiento DateTime?
   notas           String?
+  // Código corto que el cuidador comparte para que familiares y el propio
+  // paciente se vinculen a este adulto mayor. Es único y opcional (los adultos
+  // de datos viejos pueden no tenerlo hasta que se les genere uno).
+  codigoInvitacion String?  @unique
   creadoEn        DateTime  @default(now())
 
   // Relaciones inversas (un adulto mayor tiene muchos de cada uno).

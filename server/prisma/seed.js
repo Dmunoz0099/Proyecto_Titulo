@@ -28,15 +28,17 @@ async function main() {
   await prisma.adultoMayor.deleteMany();
   console.log('🧹 Datos anteriores eliminados.');
 
-  // 2) el adulto mayor
+  // 2) el adulto mayor. Le pongo un código de invitación fijo para las pruebas,
+  //    así el familiar y el paciente pueden "unirse" con él si borro sus vínculos.
   const adultoMayor = await prisma.adultoMayor.create({
     data: {
       nombre: 'Luis Zapata',
       fechaNacimiento: new Date('1945-03-12'),
       notas: 'Diagnóstico de deterioro cognitivo leve. Usa lentes.',
+      codigoInvitacion: 'CM-DEMO1',
     },
   });
-  console.log(`👵 Adulto mayor creado: ${adultoMayor.nombre}`);
+  console.log(`👵 Adulto mayor creado: ${adultoMayor.nombre} (código ${adultoMayor.codigoInvitacion})`);
 
   // 3) usuarios (cuidador y familiar), los dos ligados al adulto.
   //    Hasheo la contraseña antes de guardar.
@@ -68,17 +70,18 @@ async function main() {
   );
 
   // usuario PACIENTE de ejemplo: el adulto mayor que entra con un nombre de
-  // usuario simple y SIN email (el caso típico de la idea)
+  // usuario simple, SIN email y con un PIN de 4 números (lo que crea el cuidador)
+  const pinPacienteHash = await bcrypt.hash('1234', 10);
   const paciente = await prisma.usuario.create({
     data: {
       nombre: 'Luis Zapata',
       nombreUsuario: 'luis',
-      password: passwordHash,
+      password: pinPacienteHash,
       rol: 'PACIENTE',
       adultoMayorId: adultoMayor.id,
     },
   });
-  console.log(`👵 Usuario paciente creado: ${paciente.nombreUsuario} (sin email)`);
+  console.log(`👵 Usuario paciente creado: ${paciente.nombreUsuario} (sin email, PIN 1234)`);
 
   // 4) medicamentos
   await prisma.medicamento.createMany({
@@ -178,9 +181,10 @@ async function main() {
 
   console.log('\n✅ Seed completado con éxito.');
   console.log('   Usuarios de prueba (contraseña: 123456):');
-  console.log('   - CUIDADOR -> usuario: cuidador');
-  console.log('   - FAMILIAR -> usuario: familiar');
-  console.log('   - PACIENTE -> usuario: rosa (sin email)');
+  console.log('   - CUIDADOR -> usuario: milena');
+  console.log('   - FAMILIAR -> usuario: diego');
+  console.log('   - PACIENTE -> usuario: luis (sin email, PIN 1234)');
+  console.log(`   Código de invitación del adulto mayor: ${adultoMayor.codigoInvitacion}`);
 }
 
 main()

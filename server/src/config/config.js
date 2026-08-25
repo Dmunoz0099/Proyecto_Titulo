@@ -19,7 +19,11 @@ export const config = {
   // JWT para firmar los tokens de sesión
   jwt: {
     secreto: process.env.JWT_SECRET || 'secreto_de_desarrollo_inseguro',
+    // duración normal de la sesión
     expiraEn: process.env.JWT_EXPIRES_IN || '1d',
+    // duración cuando se marca "mantener sesión iniciada" (pensado para el
+    // dispositivo de casa del adulto mayor, así no re-loguea cada día)
+    expiraEnLargo: process.env.JWT_EXPIRES_IN_LARGO || '30d',
   },
 
   // origen que deja pasar CORS (la url del front)

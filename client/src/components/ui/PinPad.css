@@ -1,0 +1,83 @@
+/* PinPad.css -> teclado numérico grande y accesible. Usa los tokens de color de
+   la pantalla donde se monte (.app en login, o las variables globales). Con
+   fallbacks por si se usa fuera de esos contextos. */
+
+.pinpad {
+  --pp-primary: var(--primary, #2f7d6b);
+  --pp-line: var(--line, #e3dccf);
+  --pp-ink: var(--ink, #2a2620);
+  --pp-surface: var(--surface, #fffefb);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* casilleros que muestran el avance del PIN */
+.pin-display {
+  display: flex;
+  gap: 14px;
+}
+.pin-dot {
+  width: 46px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--pp-line);
+  border-radius: 12px;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--pp-primary);
+  background: var(--pp-surface);
+}
+.pin-dot.lleno {
+  border-color: var(--pp-primary);
+  background: color-mix(in oklab, var(--pp-primary), white 90%);
+}
+
+/* rejilla 3x4 de teclas */
+.pin-teclas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+.pin-tecla {
+  aspect-ratio: 1 / 1;
+  min-height: 64px;
+  border: 1.5px solid var(--pp-line);
+  border-radius: 16px;
+  background: var(--pp-surface);
+  color: var(--pp-ink);
+  font-family: var(--font, system-ui, sans-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.05s ease;
+}
+.pin-tecla:hover:not(:disabled) {
+  border-color: var(--pp-primary);
+  background: color-mix(in oklab, var(--pp-primary), white 92%);
+}
+.pin-tecla:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.pin-tecla:focus-visible {
+  outline: 3px solid var(--pp-primary);
+  outline-offset: 2px;
+}
+.pin-tecla:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* el hueco vacío para centrar el 0 no se ve ni se puede tocar */
+.pin-tecla.vacia {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+.pin-tecla.borrar {
+  font-size: 1.5rem;
+}
