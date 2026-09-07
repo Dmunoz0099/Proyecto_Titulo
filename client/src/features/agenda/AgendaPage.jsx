@@ -20,6 +20,7 @@ import {
 import { toneDeIcono, horaDeISO } from './iconosAgenda.js';
 import { useRecurso } from '../../api/cache.js';
 import EventoModal from './components/EventoModal.jsx';
+import { DialogoConfirmar } from '../../components/ui/DialogoConfirmar.jsx';
 import './Agenda.css';
 
 // fecha de hoy en formato largo (ej: "viernes, 5 de junio")
@@ -142,6 +143,7 @@ function AgendaPage() {
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [modal, setModal] = useState(null); // null | {} (nuevo) | evento (editando)
+  const [porBorrar, setPorBorrar] = useState(null); // evento que se está por eliminar
 
   // los eventos salen de la caché compartida ('eventos'): al volver a la agenda
   // se ven al instante y se refrescan por detrás. La misma key la usan la Home
@@ -171,15 +173,19 @@ function AgendaPage() {
     }
   }
 
+  // la confirmación la pide el diálogo propio (DialogoConfirmar), no window.confirm
+  // (que en el celular no siempre respondía). Acá ya borro directo.
   async function eliminar(evento) {
-    const ok = window.confirm(`¿Eliminar la actividad "${evento.titulo}"?`);
-    if (!ok) return;
+    setGuardando(true);
     setError('');
     try {
       await eliminarEvento(evento.id);
+      setPorBorrar(null);
       await refrescarEventos();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos eliminar la actividad.');
+    } finally {
+      setGuardando(false);
     }
   }
 
@@ -219,7 +225,7 @@ function AgendaPage() {
             eventos={eventos}
             onNuevo={() => setModal({})}
             onEditar={(e) => setModal(e)}
-            onEliminar={eliminar}
+            onEliminar={(e) => setPorBorrar(e)}
           />
         ) : (
           <PatientView eventos={eventos} />
@@ -232,6 +238,17 @@ function AgendaPage() {
           onCerrar={() => setModal(null)}
           onGuardar={guardar}
           guardando={guardando}
+        />
+      )}
+
+      {porBorrar && (
+        <DialogoConfirmar
+          titulo="Eliminar actividad"
+          mensaje={`¿Eliminar la actividad "${porBorrar.titulo}"?`}
+          textoConfirmar="Sí, eliminar"
+          procesando={guardando}
+          onConfirmar={() => eliminar(porBorrar)}
+          onCancelar={() => setPorBorrar(null)}
         />
       )}
     </div>

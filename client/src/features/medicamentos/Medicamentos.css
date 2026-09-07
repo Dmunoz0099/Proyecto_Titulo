@@ -43,6 +43,8 @@
 .med .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; color: var(--ink-soft); font-size: var(--fs-body); font-weight: 600; }
 .med .meta .m { display: inline-flex; align-items: center; gap: 7px; }
 .med .meta .m svg { color: var(--ink-faint); }
+/* iconos de editar/eliminar en cada tarjeta de remedio (como en la agenda) */
+.med .acts { display: flex; gap: 10px; flex: none; }
 
 /* historial */
 .hist-day { font-size: var(--fs-h3); font-weight: 800; margin: var(--sp-4) 0 var(--sp-3); }

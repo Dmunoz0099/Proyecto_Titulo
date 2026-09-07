@@ -23,6 +23,7 @@ import {
 } from '../../api/medicamentos.js';
 import { useRecurso } from '../../api/cache.js';
 import MedicamentoModal from './components/MedicamentoModal.jsx';
+import { DialogoConfirmar } from '../../components/ui/DialogoConfirmar.jsx';
 import './Medicamentos.css';
 
 // tonos que voy rotando por medicamento (el modelo no guarda color; así cada
@@ -147,7 +148,7 @@ function TodayTab({ medicamentos, tomasHoy, toneDe, puedeMarcar, esPaciente, mar
 }
 
 /* pestaña REMEDIOS */
-function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onAgregar }) {
+function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onEliminar, onAgregar }) {
   if (medicamentos.length === 0) {
     return (
       <div className="card empty t-lg">
@@ -173,9 +174,14 @@ function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onAgregar }) {
             </div>
           </div>
           {esCuidador && (
-            <button className="btn btn-secondary" onClick={() => onEditar(m)}>
-              <Icon name="edit" size={22} /> Editar
-            </button>
+            <div className="acts">
+              <button className="icon-btn" aria-label={`Editar ${m.nombre}`} onClick={() => onEditar(m)}>
+                <Icon name="edit" size={22} />
+              </button>
+              <button className="icon-btn" aria-label={`Eliminar ${m.nombre}`} onClick={() => onEliminar(m)}>
+                <Icon name="trash" size={22} />
+              </button>
+            </div>
           )}
         </div>
       ))}
@@ -278,6 +284,7 @@ function MedicamentosPage() {
   const [marcandoKey, setMarcandoKey] = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [modal, setModal] = useState(null); // null | {} (nuevo) | med (editando)
+  const [porBorrar, setPorBorrar] = useState(null); // med que se está por eliminar
 
   // tone fijo según la posición del medicamento en la lista
   const toneDe = (medId) => {
@@ -318,16 +325,15 @@ function MedicamentosPage() {
     }
   }
 
-  // la confirmación la pide el propio modal (paso "¿Seguro?"), así que acá ya
-  // borro directo. Uso el mismo flag "guardando" para bloquear los botones y
-  // mostrar "Eliminando…" mientras dura.
+  // la confirmación la pide el diálogo propio de la app (DialogoConfirmar), no
+  // window.confirm (que en el celular no siempre respondía). Acá ya borro directo.
   async function eliminar(med) {
     setGuardando(true);
     setError('');
     try {
       await eliminarMedicamento(med.id);
       setConfirmacion(`"${med.nombre}" se quitó de la lista.`);
-      setModal(null);
+      setPorBorrar(null);
       await recargar();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos eliminar el medicamento.');
@@ -440,6 +446,7 @@ function MedicamentosPage() {
                 toneDe={toneDe}
                 esCuidador={esCuidador}
                 onEditar={(m) => setModal(m)}
+                onEliminar={(m) => setPorBorrar(m)}
                 onAgregar={() => setModal({})}
               />
             )}
@@ -455,8 +462,18 @@ function MedicamentosPage() {
           inicial={modal.id ? modal : null}
           onCerrar={() => setModal(null)}
           onGuardar={guardar}
-          onEliminar={eliminar}
           guardando={guardando}
+        />
+      )}
+
+      {porBorrar && (
+        <DialogoConfirmar
+          titulo="Eliminar medicamento"
+          mensaje={`¿Quitar "${porBorrar.nombre}" de la lista de medicamentos?`}
+          textoConfirmar="Sí, eliminar"
+          procesando={guardando}
+          onConfirmar={() => eliminar(porBorrar)}
+          onCancelar={() => setPorBorrar(null)}
         />
       )}
     </div>

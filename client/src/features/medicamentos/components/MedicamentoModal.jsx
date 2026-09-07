@@ -16,7 +16,7 @@ function horasDeTexto(texto = '') {
   );
 }
 
-function MedicamentoModal({ inicial, onCerrar, onGuardar, onEliminar, guardando }) {
+function MedicamentoModal({ inicial, onCerrar, onGuardar, guardando }) {
   const editando = !!inicial;
 
   const [nombre, setNombre] = useState(inicial?.nombre || '');
@@ -25,9 +25,6 @@ function MedicamentoModal({ inicial, onCerrar, onGuardar, onEliminar, guardando 
     inicial ? horasDeTexto(inicial.horario) : ['08:00']
   );
   const [observaciones, setObservaciones] = useState(inicial?.observaciones || '');
-  // paso intermedio para borrar: al tocar "Eliminar" pido confirmar acá mismo, en
-  // el modal (antes usaba window.confirm y en el celular no siempre respondía)
-  const [confirmandoBorrar, setConfirmandoBorrar] = useState(false);
 
   const toggle = (t) =>
     setTimes((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t].sort()));
@@ -113,47 +110,15 @@ function MedicamentoModal({ inicial, onCerrar, onGuardar, onEliminar, guardando 
           </div>
         </div>
 
-        {editando && confirmandoBorrar ? (
-          // confirmación de borrado en el propio modal
-          <div className="modal-foot">
-            <span className="t-body" style={{ flex: 1, minWidth: 180, fontWeight: 600 }}>
-              ¿Seguro que quieres eliminar “{inicial.nombre}”?
-            </span>
-            <button
-              className="btn btn-ghost"
-              onClick={() => setConfirmandoBorrar(false)}
-              disabled={guardando}
-            >
-              Cancelar
-            </button>
-            <button
-              className="btn btn-danger"
-              onClick={() => onEliminar(inicial)}
-              disabled={guardando}
-            >
-              <Icon name="trash" size={22} /> {guardando ? 'Eliminando…' : 'Sí, eliminar'}
-            </button>
-          </div>
-        ) : (
-          <div className="modal-foot">
-            {editando && (
-              <button
-                className="btn btn-danger"
-                onClick={() => setConfirmandoBorrar(true)}
-                disabled={guardando}
-              >
-                <Icon name="trash" size={22} /> Eliminar
-              </button>
-            )}
-            <div style={{ flex: 1 }} />
-            <button className="btn btn-ghost" onClick={onCerrar}>
-              Cancelar
-            </button>
-            <button className="btn btn-primary" disabled={!puedeGuardar || guardando} onClick={enviar}>
-              {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Añadir'}
-            </button>
-          </div>
-        )}
+        <div className="modal-foot">
+          <div style={{ flex: 1 }} />
+          <button className="btn btn-ghost" onClick={onCerrar}>
+            Cancelar
+          </button>
+          <button className="btn btn-primary" disabled={!puedeGuardar || guardando} onClick={enviar}>
+            {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Añadir'}
+          </button>
+        </div>
       </div>
     </div>
   );
