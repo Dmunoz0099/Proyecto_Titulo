@@ -7,23 +7,24 @@
 
 .campana-btn { position: relative; }
 
-/* badge con el número de pendientes (contraste AA sobre el aviso) */
+/* badge con el número de pendientes (contraste AA sobre el aviso).
+   Grande y de número gordo: tiene que leerse de un vistazo para el adulto mayor. */
 .campana-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
+  top: -8px;
+  right: -8px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
   display: grid;
   place-items: center;
   border-radius: var(--r-pill);
   background: var(--danger);
   color: #fff;
-  font-size: 0.85rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1;
-  box-shadow: 0 0 0 2px var(--surface);
+  box-shadow: 0 0 0 3px var(--surface);
 }
 
 /* capa invisible a pantalla completa: un clic afuera cierra el panel */

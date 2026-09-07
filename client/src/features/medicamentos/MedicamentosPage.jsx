@@ -318,9 +318,11 @@ function MedicamentosPage() {
     }
   }
 
+  // la confirmación la pide el propio modal (paso "¿Seguro?"), así que acá ya
+  // borro directo. Uso el mismo flag "guardando" para bloquear los botones y
+  // mostrar "Eliminando…" mientras dura.
   async function eliminar(med) {
-    const ok = window.confirm(`¿Quitar "${med.nombre}" de la lista de medicamentos?`);
-    if (!ok) return;
+    setGuardando(true);
     setError('');
     try {
       await eliminarMedicamento(med.id);
@@ -329,6 +331,8 @@ function MedicamentosPage() {
       await recargar();
     } catch (err) {
       setError(err.response?.data?.error || 'No pudimos eliminar el medicamento.');
+    } finally {
+      setGuardando(false);
     }
   }
 

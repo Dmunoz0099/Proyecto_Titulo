@@ -49,12 +49,16 @@ export function CampanaRecordatorios() {
   const [marcando, setMarcando] = useState(null); // key de la toma que estoy marcando
   const [avisando, setAvisando] = useState(null); // key del aviso en curso
   const [avisados, setAvisados] = useState(() => new Set()); // los que ya avisé
+  // los que el paciente ya marcó como tomados en esta sesión. Los oculto SIEMPRE,
+  // aunque un refresco lento de la caché (la BD remota tarda) devuelva datos
+  // viejos sin la toma recién hecha: así el recordatorio no reaparece.
+  const [marcados, setMarcados] = useState(() => new Set());
 
   // lo necesario para calcular los recordatorios sale de la caché compartida:
   // si ya se trajo en la Home o en Medicamentos, acá está al instante. Si algo
   // falla, la campana simplemente no muestra pendientes (nunca rompe).
   const { datos: medicamentos } = useRecurso('medicamentos', listarMedicamentos, { inicial: [] });
-  const { datos: tomas, mutar: mutarTomas } = useRecurso('tomas', listarTomas, { inicial: [] });
+  const { datos: tomas, mutar: mutarTomas, refrescar: refrescarTomas } = useRecurso('tomas', listarTomas, { inicial: [] });
   const { datos: eventos } = useRecurso('eventos', listarEventos, { inicial: [] });
 
   // hora actual en minutos desde medianoche
@@ -71,12 +75,13 @@ export function CampanaRecordatorios() {
   medicamentos.forEach((m) => {
     horasDeTexto(m.horario).forEach((time) => {
       if (aMinutos(time) >= ahoraMin) return; // todavía no es su hora
+      const key = `med-${m.id}-${time}`;
       const hecha = tomasHoy.find(
         (t) => t.medicamentoId === m.id && t.comentario === time
       );
-      if (!hecha) {
+      if (!hecha && !marcados.has(key)) {
         recordatorios.push({
-          key: `med-${m.id}-${time}`,
+          key,
           tipo: 'med',
           med: m,
           hora: time,
@@ -114,9 +119,13 @@ export function CampanaRecordatorios() {
         administrado: true,
         comentario: r.hora,
       });
-      // meto la toma a la caché compartida y el recordatorio desaparece solo
-      // (y de paso la página de Medicamentos ya la ve marcada)
+      // lo oculto de una en la campana (aunque un refresco lento traiga datos
+      // viejos, este recordatorio ya no vuelve)
+      setMarcados((prev) => new Set(prev).add(r.key));
+      // meto la toma a la caché compartida para que la Home y Medicamentos la
+      // vean marcada, y por detrás refresco para dejar la caché al día
       mutarTomas((prev) => [{ ...toma }, ...prev]);
+      refrescarTomas();
     } catch {
       // si falla, dejo el recordatorio como estaba
     } finally {
