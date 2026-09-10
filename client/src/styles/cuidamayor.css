@@ -202,10 +202,12 @@
 .badge-danger { background: var(--danger-bg); color: var(--danger); }
 
 /* ---------- Formularios ---------- */
-.field { display: flex; flex-direction: column; gap: 8px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .field > label { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }
 .control {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 58px;
   padding: 0 16px;
   border: 2px solid var(--line-strong);
@@ -215,6 +217,13 @@
   font-size: var(--fs-label);
   color: var(--ink);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* iOS le da a los inputs de fecha/hora un ancho intrínseco propio que se salía
+   del modal; los normalizo para que respeten el ancho del contenedor */
+input[type='date'].control,
+input[type='time'].control {
+  -webkit-appearance: none;
+  appearance: none;
 }
 textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-height: 1.45; }
 .control:focus {
@@ -237,7 +246,10 @@ textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-
   width: 100%;
   max-width: 560px;
   max-height: 90vh;
-  overflow: auto;
+  /* solo scroll vertical: sin esto, en el celular los inputs de fecha/hora
+     dejaban un sobrante a la derecha y el modal se podía "deslizar" de lado */
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--surface);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-md);
