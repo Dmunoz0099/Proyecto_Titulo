@@ -183,7 +183,7 @@ function Inicio() {
           />
           <Snap
             tone="accent"
-            icon="calendar"
+            icon="heartpulse"
             label="Siguiente actividad"
             main={cargando ? 'Cargando…' : siguienteActividad ? siguienteActividad.titulo : 'Sin actividades'}
             time={cargando ? '' : siguienteActividad ? `Hoy a las ${horaDeISO(siguienteActividad.hora)}` : 'Aún no hay actividades'}
@@ -191,7 +191,7 @@ function Inicio() {
           />
           <Snap
             tone="warn"
-            icon={proximoEvento?.icono || 'heartpulse'}
+            icon={proximoEvento?.icono || 'calendar'}
             label="Próximo evento"
             main={proximoEvento ? proximoEvento.titulo : 'Sin eventos'}
             time={proximoEvento ? `${ymdCorto(ymdDeISO(proximoEvento.fecha))} · ${horaDeISO(proximoEvento.fecha)}` : 'Nada anotado'}
@@ -216,7 +216,7 @@ function Inicio() {
             />
             <Module
               tone="accent"
-              icon="calendar"
+              icon="heartpulse"
               name="Mi día"
               desc="Lo que toca hacer hoy, con calma y en orden."
               foot="Abrir"
@@ -224,7 +224,7 @@ function Inicio() {
             />
             <Module
               tone="primary"
-              icon="heartpulse"
+              icon="calendar"
               name="Mi calendario"
               desc="Lo que viene: controles médicos, paseos y visitas."
               foot="Abrir"
@@ -256,7 +256,7 @@ function Inicio() {
             />
             <Module
               tone="accent"
-              icon="calendar"
+              icon="heartpulse"
               name="Agenda del día"
               desc={
                 usuario.rol === 'CUIDADOR'
@@ -268,7 +268,7 @@ function Inicio() {
             />
             <Module
               tone="primary"
-              icon="heartpulse"
+              icon="calendar"
               name="Calendario"
               desc={
                 usuario.rol === 'CUIDADOR'
