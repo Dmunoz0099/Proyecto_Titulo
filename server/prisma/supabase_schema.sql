@@ -117,6 +117,25 @@ CREATE TABLE "EventoAgenda" (
 );
 
 -- ------------------------------------------------------------
+--  TABLA: EventoCalendario  (actividades a largo plazo con fecha concreta:
+--  horas médicas, centro de madres, paseos, cumpleaños, trámites...)
+-- ------------------------------------------------------------
+-- Si la base YA existe (con datos), basta con correr este bloque + su índice
+-- (más abajo) para sumar la tabla sin tocar el resto.
+CREATE TABLE IF NOT EXISTS "EventoCalendario" (
+  "id"            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "titulo"        text        NOT NULL,
+  "descripcion"   text,
+  "fecha"         timestamptz NOT NULL,
+  "icono"         text,
+  "adultoMayorId" uuid        NOT NULL,
+  "creadoEn"      timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT "EventoCalendario_adultoMayorId_fkey"
+    FOREIGN KEY ("adultoMayorId") REFERENCES "AdultoMayor"("id")
+    ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- ------------------------------------------------------------
 --  TABLA: Familiar
 -- ------------------------------------------------------------
 CREATE TABLE "Familiar" (
@@ -198,6 +217,7 @@ CREATE INDEX "Medicamento_adultoMayorId_idx"         ON "Medicamento" ("adultoMa
 CREATE INDEX "RegistroMedicamento_medicamentoId_idx" ON "RegistroMedicamento" ("medicamentoId");
 CREATE INDEX "RegistroMedicamento_registradoPorId_idx" ON "RegistroMedicamento" ("registradoPorId");
 CREATE INDEX "EventoAgenda_adultoMayorId_idx"        ON "EventoAgenda" ("adultoMayorId");
+CREATE INDEX "EventoCalendario_adultoMayorId_fecha_idx" ON "EventoCalendario" ("adultoMayorId", "fecha");
 CREATE INDEX "Familiar_adultoMayorId_idx"            ON "Familiar" ("adultoMayorId");
 CREATE INDEX "EntradaBitacora_adultoMayorId_idx"     ON "EntradaBitacora" ("adultoMayorId");
 CREATE INDEX "EntradaBitacora_autorId_idx"           ON "EntradaBitacora" ("autorId");

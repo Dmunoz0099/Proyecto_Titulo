@@ -50,12 +50,8 @@
 .ev .desc { font-size: var(--fs-body); color: var(--ink-soft); font-weight: 500; margin-top: 2px; }
 .ev .acts { display: flex; gap: 10px; flex: none; }
 
-/* selector de iconos (modal) */
-.icon-pick { display: flex; flex-wrap: wrap; gap: 12px; }
-.icon-pick button { width: 64px; height: 64px; border-radius: var(--r-md); border: 2px solid var(--line-strong); background: var(--surface);
-  display: grid; place-items: center; cursor: pointer; color: var(--ink-soft); transition: all .12s; }
-.icon-pick button.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
-.icon-pick button:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+/* el selector de iconos (.icon-pick / .icon-grupo) vive ahora en el CSS global
+   (cuidamayor.css) porque lo comparten el modal de agenda y el de calendario. */
 
 @media (max-width: 680px) {
   .act { gap: 18px; padding: 22px; flex-wrap: wrap; }

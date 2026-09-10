@@ -5,7 +5,7 @@
 .hero .date { color: var(--ink-soft); font-weight: 600; font-size: var(--fs-lg); text-transform: capitalize; }
 
 /* vistazo de hoy */
-.today { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-6); }
+.today { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-3); margin-bottom: var(--sp-6); }
 .snap { display: flex; align-items: center; gap: 18px; padding: 22px 24px; text-decoration: none; color: inherit; }
 .snap .tile { width: 64px; height: 64px; }
 .snap .txt { min-width: 0; flex: 1; }

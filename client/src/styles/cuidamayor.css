@@ -273,6 +273,17 @@ textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-
 }
 /* diálogo de confirmar (sí/no): más angosto que un modal normal */
 .modal-confirm { max-width: 440px; }
+
+/* selector de iconos (modal de agenda y de calendario) */
+.icon-grupo { margin-top: 14px; }
+.icon-grupo:first-of-type { margin-top: 6px; }
+.icon-grupo-titulo { font-size: var(--fs-small); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .03em; }
+.icon-pick { display: flex; flex-wrap: wrap; gap: 12px; }
+.icon-pick button { width: 64px; height: 64px; border-radius: var(--r-md); border: 2px solid var(--line-strong); background: var(--surface);
+  display: grid; place-items: center; cursor: pointer; color: var(--ink-soft); transition: all .12s; }
+.icon-pick button.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
+.icon-pick button:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
 @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
 

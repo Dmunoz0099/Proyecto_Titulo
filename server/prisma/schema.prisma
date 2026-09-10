@@ -89,13 +89,14 @@ model AdultoMayor {
   creadoEn        DateTime  @default(now())
 
   // Relaciones inversas (un adulto mayor tiene muchos de cada uno).
-  usuarios      Usuario[]
-  medicamentos  Medicamento[]
-  eventos       EventoAgenda[]
-  familiares    Familiar[]
-  bitacoras     EntradaBitacora[]
-  sesionesJuego SesionJuego[]
-  alertas       AlertaSos[]
+  usuarios          Usuario[]
+  medicamentos      Medicamento[]
+  eventos           EventoAgenda[]
+  eventosCalendario EventoCalendario[]
+  familiares        Familiar[]
+  bitacoras         EntradaBitacora[]
+  sesionesJuego     SesionJuego[]
+  alertas           AlertaSos[]
 }
 
 // Medicamento que debe tomar un adulto mayor.
@@ -149,6 +150,26 @@ model EventoAgenda {
   adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
 
   @@index([adultoMayorId])
+}
+
+// Evento del calendario a largo plazo: horas médicas, idas al centro de
+// madres, paseos del barrio, cumpleaños, trámites, etc. A diferencia de
+// EventoAgenda (rutina DIARIA, solo hora), acá SÍ importa la fecha concreta:
+// un control médico ocurre un día y hora puntual.
+model EventoCalendario {
+  id            String   @id @default(uuid()) @db.Uuid
+  titulo        String
+  descripcion   String?
+  fecha         DateTime // día y hora concretos del evento
+  icono         String?
+  adultoMayorId String   @db.Uuid
+  creadoEn      DateTime @default(now())
+
+  // Relaciones
+  adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
+
+  // se consulta por adulto mayor y ordenado por fecha (agenda del mes / próximos)
+  @@index([adultoMayorId, fecha])
 }
 
 // Familiar asociado a un adulto mayor (contacto / red de apoyo).

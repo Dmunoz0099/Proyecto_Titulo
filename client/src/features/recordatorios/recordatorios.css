@@ -89,6 +89,9 @@
   border-radius: var(--r-md);
   background: var(--surface);
 }
+/* aviso informativo (próximo evento del calendario): sin acciones, se distingue
+   con un fondo sutil para no confundirlo con un pendiente por hacer */
+.rec-proximo { background: var(--surface-2); border-style: dashed; }
 .rec-item .tile { width: 44px; height: 44px; flex: none; }
 .rec-info { flex: 1; min-width: 0; }
 .rec-title { font-size: var(--fs-label); font-weight: 700; color: var(--ink); }

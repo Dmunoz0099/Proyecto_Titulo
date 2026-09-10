@@ -6,6 +6,7 @@ import authRoutes from './auth.routes.js';
 import vinculacionRoutes from './vinculacion.routes.js';
 import medicamentoRoutes from './medicamento.routes.js';
 import eventoRoutes from './evento.routes.js';
+import calendarioRoutes from './evento-calendario.routes.js';
 import alertaRoutes from './alerta.routes.js';
 import juegoRoutes from './juego.routes.js';
 
@@ -22,6 +23,9 @@ router.use('/medicamentos', medicamentoRoutes);
 
 // agenda -> /api/agenda/...
 router.use('/agenda', eventoRoutes);
+
+// calendario a largo plazo -> /api/calendario/...
+router.use('/calendario', calendarioRoutes);
 
 // alertas SOS -> /api/alertas/...
 router.use('/alertas', alertaRoutes);

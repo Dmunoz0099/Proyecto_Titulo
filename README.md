@@ -73,11 +73,16 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
   dispositivo de casa.
 - **Inicio diferenciado por rol**: el paciente ve su botón SOS y módulos simples;
   cuidador/familiar ven el panel de alertas y la gestión. Incluye un "vistazo de
-  hoy" con la próxima toma y la siguiente actividad.
+  hoy" con la próxima toma, la siguiente actividad y el próximo evento del calendario.
 - **Medicamentos**: CRUD (solo cuidador), registro de tomas con historial de quién y
   cuándo, y borrado lógico para no perder el historial.
 - **Agenda diaria**: rutina del día ordenada por hora, con iconos; gestión solo del
-  cuidador.
+  cuidador. Catálogo de **22 iconos agrupados por categoría** (rutina, salud, social,
+  salidas) para identificar mejor cada actividad.
+- **Calendario a largo plazo**: eventos con fecha concreta (horas médicas, centro de
+  madres, paseos del barrio, cumpleaños, trámites...). El cuidador los gestiona en una
+  grilla mensual; el paciente y el familiar ven una lista de "Próximas actividades".
+  Complementa a la agenda (que es la rutina diaria, sin fecha).
 - **Alertas SOS**: el paciente pide ayuda con un botón grande; el cuidador/familiar
   las ven (pendientes primero) y las marcan como atendidas.
 - **Juegos — Memorice**: juego de parejas con emojis por temas (frutas, autos,
@@ -87,6 +92,8 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
   **Seguimiento** (progreso partida a partida).
 - **Campana de recordatorios** (paciente): avisa de tomas olvidadas (hora pasada sin
   registro) y actividades recientes; permite resolver la toma o avisar al cuidador.
+  Además muestra un aviso informativo de los **próximos eventos del calendario** (hoy
+  y mañana).
 - **Centro de notificaciones** (cuidador y familiar): campana en la barra superior
   con las alertas SOS pendientes del adulto mayor; se atienden desde cualquier
   pantalla, sin volver al inicio.
@@ -109,7 +116,7 @@ Proyecto_Titulo/
 │       ├── components/
 │       │   ├── ui/          # Componentes reutilizables (Icon, Logo)
 │       │   └── layout/      # AppBar (barra superior + campana)
-│       ├── features/        # agenda, alertas, juegos, medicamentos, recordatorios
+│       ├── features/        # agenda, calendario, alertas, juegos, medicamentos, recordatorios
 │       ├── context/         # AuthContext (sesión global)
 │       ├── hooks/           # useAuth
 │       ├── pages/           # Login, Registro, Vincular, Inicio
@@ -126,7 +133,7 @@ Proyecto_Titulo/
         ├── config/          # config.js (env) y prisma.js (cliente singleton)
         ├── controllers/     # Reciben req/res y llaman a servicios
         ├── services/        # Lógica de negocio + acceso a datos (Prisma)
-        ├── routes/          # Endpoints (auth, vinculacion, medicamentos, agenda, alertas, juegos)
+        ├── routes/          # Endpoints (auth, vinculacion, medicamentos, agenda, calendario, alertas, juegos)
         ├── middlewares/     # autenticar (JWT), autorizar (rol), validar (Zod), errores
         ├── validators/      # Esquemas Zod por módulo
         ├── utils/           # crearError, jwt
@@ -163,6 +170,10 @@ permitidos.
 | POST   | `/agenda` | 🔒 (CUIDADOR) Crear evento |
 | PUT    | `/agenda/:id` | 🔒 (CUIDADOR) Actualizar evento |
 | DELETE | `/agenda/:id` | 🔒 (CUIDADOR) Eliminar evento |
+| GET    | `/calendario` | 🔒 Eventos del calendario (por fecha) |
+| POST   | `/calendario` | 🔒 (CUIDADOR) Crear evento de calendario |
+| PUT    | `/calendario/:id` | 🔒 (CUIDADOR) Actualizar evento de calendario |
+| DELETE | `/calendario/:id` | 🔒 (CUIDADOR) Eliminar evento de calendario |
 | POST   | `/alertas` | 🔒 (PACIENTE) Crear alerta SOS |
 | GET    | `/alertas` | 🔒 (CUIDADOR, FAMILIAR) Listar alertas |
 | POST   | `/alertas/:id/atender` | 🔒 (CUIDADOR, FAMILIAR) Atender alerta |

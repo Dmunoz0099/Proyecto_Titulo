@@ -16,10 +16,23 @@ import {
   registrarToma,
 } from '../../api/medicamentos.js';
 import { listarEventos } from '../../api/agenda.js';
+import { listarEventosCalendario } from '../../api/calendario.js';
 import { crearAlerta } from '../../api/alertas.js';
 import { useRecurso } from '../../api/cache.js';
-import { horaDeISO } from '../agenda/iconosAgenda.js';
+import { horaDeISO, toneDeIcono } from '../agenda/iconosAgenda.js';
 import './recordatorios.css';
+
+// "YYYY-MM-DD" de hoy + n días (fecha local del usuario)
+function ymdConDesfase(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// ISO del backend -> "YYYY-MM-DD" (en UTC, estable; igual criterio que el calendario)
+function ymdDeISO(iso) {
+  return new Date(iso).toISOString().slice(0, 10);
+}
 
 // cuántos minutos después de su hora sigo mostrando una ACTIVIDAD como
 // recordatorio. La agenda no sabe si se hizo, así que limito la ventana para no
@@ -60,6 +73,7 @@ export function CampanaRecordatorios() {
   const { datos: medicamentos } = useRecurso('medicamentos', listarMedicamentos, { inicial: [] });
   const { datos: tomas, mutar: mutarTomas, refrescar: refrescarTomas } = useRecurso('tomas', listarTomas, { inicial: [] });
   const { datos: eventos } = useRecurso('eventos', listarEventos, { inicial: [] });
+  const { datos: eventosCal } = useRecurso('eventosCalendario', listarEventosCalendario, { inicial: [] });
 
   // hora actual en minutos desde medianoche
   const ahora = new Date();
@@ -111,6 +125,25 @@ export function CampanaRecordatorios() {
 
   recordatorios.sort((a, b) => a.hora.localeCompare(b.hora));
 
+  // próximos eventos del calendario: aviso suave de lo de HOY y MAÑANA (controles
+  // médicos, salidas...). Es informativo, no un "olvido": el paciente solo lo ve
+  // para saber qué viene. Va aparte para no mezclarlo con los pendientes por hacer.
+  const hoyYmd = ymdConDesfase(0);
+  const mananaYmd = ymdConDesfase(1);
+  const proximos = eventosCal
+    .filter((e) => {
+      const ymd = ymdDeISO(e.fecha);
+      return ymd === hoyYmd || ymd === mananaYmd;
+    })
+    .map((e) => ({
+      key: `cal-${e.id}`,
+      icono: e.icono,
+      titulo: e.titulo,
+      cuando: ymdDeISO(e.fecha) === hoyYmd ? 'Hoy' : 'Mañana',
+      hora: horaDeISO(e.fecha),
+    }))
+    .sort((a, b) => (a.cuando + a.hora).localeCompare(b.cuando + b.hora));
+
   // marcar una toma desde la campana (resuelve el recordatorio)
   async function marcarTomada(r) {
     setMarcando(r.key);
@@ -146,7 +179,8 @@ export function CampanaRecordatorios() {
     }
   }
 
-  const total = recordatorios.length;
+  // el badge cuenta los pendientes por hacer + los próximos que conviene saber
+  const total = recordatorios.length + proximos.length;
 
   return (
     <div className="campana-wrap">
@@ -195,6 +229,18 @@ export function CampanaRecordatorios() {
               </div>
             ) : (
               <ul className="campana-list">
+                {/* próximos eventos del calendario (informativo, sin acciones) */}
+                {proximos.map((p) => (
+                  <li key={p.key} className="rec-item rec-proximo">
+                    <span className={`tile tile-${toneDeIcono(p.icono)}`}>
+                      <Icon name={p.icono || 'calendar'} size={24} />
+                    </span>
+                    <div className="rec-info">
+                      <div className="rec-title">{p.titulo}</div>
+                      <div className="rec-detalle muted">{p.cuando} a las {p.hora}</div>
+                    </div>
+                  </li>
+                ))}
                 {recordatorios.map((r) => {
                   const yaAvisado = avisados.has(r.key);
                   return (

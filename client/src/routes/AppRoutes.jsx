@@ -8,6 +8,7 @@ import Vincular from '../pages/Vincular.jsx';
 import Inicio from '../pages/Inicio.jsx';
 import MedicamentosPage from '../features/medicamentos/MedicamentosPage.jsx';
 import AgendaPage from '../features/agenda/AgendaPage.jsx';
+import CalendarioPage from '../features/calendario/CalendarioPage.jsx';
 import JuegosPage from '../features/juegos/JuegosPage.jsx';
 import { RutaProtegida } from './RutaProtegida.jsx';
 
@@ -57,6 +58,16 @@ export function AppRoutes() {
         element={
           <RutaProtegida>
             <AgendaPage />
+          </RutaProtegida>
+        }
+      />
+
+      {/* calendario a largo plazo (cualquier rol con sesión) */}
+      <Route
+        path="/calendario"
+        element={
+          <RutaProtegida>
+            <CalendarioPage />
           </RutaProtegida>
         }
       />

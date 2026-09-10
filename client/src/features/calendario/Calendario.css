@@ -1,0 +1,60 @@
+/* Calendario.css -> estilos del Calendario a largo plazo. Reusa tokens y clases
+   generales (card, tile, btn...) y agrega lo propio de la grilla mensual. */
+
+/* encabezado de la vista simple (paciente / familiar) */
+.cal-head-simple { margin-bottom: var(--sp-4); }
+.cal-head-simple .title { font-size: var(--fs-h1); font-weight: 800; }
+.cal-head-simple .sub { font-size: var(--fs-body); margin-top: 2px; }
+
+/* ----- grilla mensual (vista cuidador) ----- */
+.cal-cal { padding: var(--sp-4); margin-top: var(--sp-3); }
+
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
+.cal-mes { font-size: var(--fs-h2); font-weight: 800; text-transform: capitalize; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.cal-dow { text-align: center; font-size: var(--fs-small); font-weight: 700; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: .03em; padding-bottom: 4px; }
+
+.cal-dia { position: relative; aspect-ratio: 1 / 1; border: 2px solid var(--line-strong);
+  border-radius: var(--r-md); background: var(--surface); cursor: pointer; display: flex;
+  flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 4px 4px;
+  transition: all .12s; min-height: 52px; }
+.cal-dia.vacio { border: none; background: transparent; cursor: default; aspect-ratio: 1 / 1; }
+.cal-dia .cal-num { font-size: var(--fs-body); font-weight: 700; color: var(--ink); }
+.cal-dia.con-eventos { border-color: var(--primary-soft); }
+.cal-dia.hoy { border-color: var(--primary); }
+.cal-dia.sel { background: var(--primary-soft); border-color: var(--primary); }
+.cal-dia:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+.cal-puntos { display: flex; gap: 3px; margin-top: auto; }
+.punto { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.punto-primary { background: var(--primary); }
+.punto-accent { background: var(--accent); }
+.punto-warn { background: var(--warn); }
+
+/* ----- lista de eventos del día / próximos ----- */
+.cal-dia-sel { margin-top: var(--sp-5); }
+.cal-dia-sel h2 { text-transform: capitalize; margin-bottom: var(--sp-3); }
+
+.cal-lista { display: flex; flex-direction: column; gap: var(--sp-3); }
+
+.cal-ev { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); }
+.cal-ev-info { flex: 1; min-width: 0; }
+.cal-ev-title { font-size: var(--fs-lg); font-weight: 700; }
+.cal-ev-desc { font-size: var(--fs-body); color: var(--ink-soft); margin-top: 2px; }
+.cal-ev-hora { font-size: var(--fs-lg); font-weight: 700; color: var(--primary-strong); flex: none; }
+.cal-ev-acts { display: flex; gap: 10px; flex: none; }
+
+/* próximos (vista simple): agrupados por fecha */
+.cal-prox-item { display: flex; flex-direction: column; gap: 8px; }
+.cal-prox-fecha { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--ink-soft);
+  text-transform: capitalize; font-size: var(--fs-body); margin-top: var(--sp-2); }
+
+@media (max-width: 560px) {
+  .cal-cal { padding: var(--sp-3); }
+  .cal-grid { gap: 4px; }
+  .cal-dia { padding: 5px 2px 3px; min-height: 44px; }
+  .cal-ev { flex-wrap: wrap; }
+  .cal-ev-hora { order: 3; }
+}

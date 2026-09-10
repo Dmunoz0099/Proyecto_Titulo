@@ -10,8 +10,10 @@ import { AppBar } from '../components/layout/AppBar.jsx';
 import { Icon } from '../components/ui/Icon.jsx';
 import { listarMedicamentos } from '../api/medicamentos.js';
 import { listarEventos } from '../api/agenda.js';
+import { listarEventosCalendario } from '../api/calendario.js';
 import { useRecurso } from '../api/cache.js';
 import { horaDeISO } from '../features/agenda/iconosAgenda.js';
+import { ymdDeISO, hoyYMD, ymdCorto } from '../features/calendario/calendarioFechas.js';
 import { BotonSOS } from '../features/alertas/BotonSOS.jsx';
 import { PanelAlertas } from '../features/alertas/PanelAlertas.jsx';
 import '../features/alertas/alertas.css';
@@ -109,6 +111,11 @@ function Inicio() {
     listarEventos,
     { inicial: [] }
   );
+  const { datos: eventosCal } = useRecurso(
+    'eventosCalendario',
+    listarEventosCalendario,
+    { inicial: [] }
+  );
   const cargando = cargMeds || cargEventos;
 
   // próxima toma: la que tiene la hora planificada más cercana a "ahora"
@@ -135,6 +142,16 @@ function Inicio() {
     const ahora = horaActual();
     return eventos.find((e) => horaDeISO(e.hora) >= ahora) || eventos[0];
   }, [eventos]);
+
+  // próximo evento del calendario: el más cercano de hoy en adelante
+  const proximoEvento = useMemo(() => {
+    if (!eventosCal.length) return null;
+    const hoy = hoyYMD();
+    const futuros = eventosCal
+      .filter((e) => ymdDeISO(e.fecha) >= hoy)
+      .sort((a, b) => a.fecha.localeCompare(b.fecha));
+    return futuros[0] || null;
+  }, [eventosCal]);
 
   return (
     <div className="page">
@@ -172,6 +189,14 @@ function Inicio() {
             time={cargando ? '' : siguienteActividad ? `Hoy a las ${horaDeISO(siguienteActividad.hora)}` : 'Aún no hay actividades'}
             to="/agenda"
           />
+          <Snap
+            tone="warn"
+            icon={proximoEvento?.icono || 'heartpulse'}
+            label="Próximo evento"
+            main={proximoEvento ? proximoEvento.titulo : 'Sin eventos'}
+            time={proximoEvento ? `${ymdCorto(ymdDeISO(proximoEvento.fecha))} · ${horaDeISO(proximoEvento.fecha)}` : 'Nada anotado'}
+            to="/calendario"
+          />
         </div>
 
         <h2 className="section-title">
@@ -196,6 +221,14 @@ function Inicio() {
               desc="Lo que toca hacer hoy, con calma y en orden."
               foot="Abrir"
               to="/agenda"
+            />
+            <Module
+              tone="primary"
+              icon="heartpulse"
+              name="Mi calendario"
+              desc="Lo que viene: controles médicos, paseos y visitas."
+              foot="Abrir"
+              to="/calendario"
             />
             <Module
               tone="warn"
@@ -232,6 +265,18 @@ function Inicio() {
               }
               foot="Abrir"
               to="/agenda"
+            />
+            <Module
+              tone="primary"
+              icon="heartpulse"
+              name="Calendario"
+              desc={
+                usuario.rol === 'CUIDADOR'
+                  ? 'Horas médicas, paseos y trámites a futuro.'
+                  : 'Revisa las fechas y actividades a futuro.'
+              }
+              foot="Abrir"
+              to="/calendario"
             />
             {/* juegos: solo el CUIDADOR (el FAMILIAR no entra) */}
             {usuario.rol === 'CUIDADOR' && (

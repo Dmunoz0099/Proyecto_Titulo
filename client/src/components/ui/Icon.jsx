@@ -124,6 +124,85 @@ const ICONOS = {
       <path d="M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" />
     </>
   ),
+
+  // --- actividades de agenda / calendario (agregados) ---
+  // control médico: línea de latido (electro)
+  heartpulse: <path d="M2 12h4l2-5 4 10 2-6 2 1h6" />,
+  // dentista: muela
+  tooth: (
+    <path d="M7 3c-2 0-3.5 1.6-3.5 4.5 0 3 .8 5 1.6 9 .5 2.2 2.4 2.2 2.9 0l.6-3.6c.2-1.1 1.6-1.1 1.8 0l.6 3.6c.5 2.2 2.4 2.2 2.9 0 .8-4 1.6-6 1.6-9C15.5 4.6 14 3 12 3c-1.4 0-1.8.8-2.5.8S8.4 3 7 3z" />
+  ),
+  // vacuna / inyección: jeringa
+  syringe: (
+    <>
+      <path d="M13 3l8 8M17.5 6.5l-2 2" />
+      <path d="M14 9l-8.5 8.5L3 19l1.5-2.5L13 8" />
+      <path d="M6.5 14.5l3 3" />
+    </>
+  ),
+  // visita familiar / cariño: corazón
+  heart: (
+    <path d="M12 20s-7-4.6-7-9.3A3.7 3.7 0 0 1 12 8a3.7 3.7 0 0 1 7 2.7C19 15.4 12 20 12 20z" />
+  ),
+  // cumpleaños: regalo
+  gift: (
+    <>
+      <rect x="4" y="9" width="16" height="11" rx="1" />
+      <path d="M3 9h18M12 9v11" />
+      <path d="M12 9c-.8-2-1.8-4.5-3.8-4.5A2 2 0 0 0 8 9M12 9c.8-2 1.8-4.5 3.8-4.5A2 2 0 0 1 16 9" />
+    </>
+  ),
+  // misa / iglesia
+  church: (
+    <>
+      <path d="M12 2v5M9.5 4.2h5" />
+      <path d="M12 7l7 4.5V21H5v-9.5L12 7z" />
+      <path d="M10 21v-4a2 2 0 0 1 4 0v4" />
+    </>
+  ),
+  // taller / centro de madres: libro
+  book: (
+    <>
+      <path d="M4 4.5h9a2 2 0 0 1 2 2V20a2 2 0 0 0-2-2H4V4.5z" />
+      <path d="M20 4.5h-5a2 2 0 0 0-2 2V20a2 2 0 0 1 2-2h5V4.5z" />
+    </>
+  ),
+  // paseo / parque: árbol
+  tree: (
+    <>
+      <path d="M12 3l5 7h-3l3 5H7l3-5H7l5-7z" />
+      <path d="M12 15v6" />
+    </>
+  ),
+  // transporte: micro / bus
+  bus: (
+    <>
+      <rect x="3" y="4.5" width="18" height="12" rx="2" />
+      <path d="M3 11h18M7 16.5v2M17 16.5v2" />
+      <circle cx="7.5" cy="13.5" r="1" />
+      <circle cx="16.5" cy="13.5" r="1" />
+    </>
+  ),
+  // compras / feria: carrito
+  cart: (
+    <>
+      <path d="M3 4h2l2.2 11h10.3l2-8H6" />
+      <circle cx="9" cy="20" r="1.4" />
+      <circle cx="17" cy="20" r="1.4" />
+    </>
+  ),
+  // trámite / banco
+  bank: (
+    <path d="M3 9.5l9-5.5 9 5.5M4.5 9.5h15M6 11v6M10 11v6M14 11v6M18 11v6M3.5 20h17" />
+  ),
+  // peluquería: tijeras
+  scissors: (
+    <>
+      <circle cx="6" cy="6.5" r="2.4" />
+      <circle cx="6" cy="17.5" r="2.4" />
+      <path d="M8 8l12 9.5M8 16L20 6.5" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 24, stroke = 2, ...resto }) {
