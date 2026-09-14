@@ -96,6 +96,103 @@ export async function estado(usuarioToken) {
   };
 }
 
+// --- RED DE APOYO ---
+// para un usuario ya vinculado: los datos del adulto mayor y quiénes comparten
+// su cuenta (cuidador, familiares y el propio paciente). Es solo lectura: la usa
+// el módulo "Familia" del familiar para ver con quién está conectado. Marco cuál
+// es "yo" para que el front lo destaque.
+//
+// Devuelvo también el código de invitación: el familiar lo necesita para poder
+// vincular a una NUEVA persona cuidadora (por ejemplo si la anterior renuncia) o
+// a otro familiar, sin depender de que el cuidador se lo pase.
+export async function redApoyo(usuarioToken) {
+  const usuario = await usuarioActual(usuarioToken.id);
+
+  if (!usuario.adultoMayorId) {
+    throw crearError(409, 'Tu cuenta todavía no está vinculada a un adulto mayor');
+  }
+
+  const adultoMayor = await prisma.adultoMayor.findUnique({
+    where: { id: usuario.adultoMayorId },
+    select: {
+      nombre: true,
+      fechaNacimiento: true,
+      notas: true,
+      codigoInvitacion: true,
+    },
+  });
+  if (!adultoMayor) {
+    throw crearError(404, 'No encontramos al adulto mayor de tu cuenta');
+  }
+
+  const usuarios = await prisma.usuario.findMany({
+    where: { adultoMayorId: usuario.adultoMayorId },
+    select: { id: true, nombre: true, nombreUsuario: true, rol: true },
+    orderBy: { creadoEn: 'asc' },
+  });
+
+  const miembros = usuarios.map((u) => ({
+    id: u.id,
+    nombre: u.nombre,
+    rol: u.rol,
+    esYo: u.id === usuario.id,
+  }));
+
+  // ¿ya existe la cuenta con la que entra el paciente? El familiar la crea/gestiona
+  // desde "Familia", así que necesita saber si mostrar "crear" o "ya creada".
+  const paciente = usuarios.find((u) => u.rol === 'PACIENTE');
+  const cuentaPaciente = paciente
+    ? { existe: true, nombreUsuario: paciente.nombreUsuario }
+    : { existe: false, nombreUsuario: null };
+
+  return {
+    adultoMayor: {
+      nombre: adultoMayor.nombre,
+      fechaNacimiento: adultoMayor.fechaNacimiento,
+      notas: adultoMayor.notas,
+    },
+    codigo: adultoMayor.codigoInvitacion ?? null,
+    miembros,
+    cuentaPaciente,
+  };
+}
+
+// --- DESVINCULAR A UN MIEMBRO (CUIDADOR o FAMILIAR ya vinculado) ---
+// quita a otra persona de la cuenta del adulto mayor (le deja adultoMayorId en
+// null, así pierde el acceso pero su cuenta sigue existiendo y puede volver a
+// unirse con el código). Caso típico: la persona cuidadora renuncia o falta un
+// día y entra otra nueva. No borra la cuenta ni ningún dato del adulto mayor.
+//
+// Reglas: solo dentro del MISMO adulto mayor; no te puedes quitar a ti mismo por
+// acá; y no se puede quitar al PACIENTE (su cuenta ES la del adulto mayor).
+export async function desvincular(usuarioToken, idObjetivo) {
+  const solicitante = await usuarioActual(usuarioToken.id);
+
+  if (!solicitante.adultoMayorId) {
+    throw crearError(409, 'Tu cuenta no está vinculada a ningún adulto mayor');
+  }
+
+  if (idObjetivo === solicitante.id) {
+    throw crearError(400, 'No puedes desvincularte a ti mismo desde aquí');
+  }
+
+  const objetivo = await prisma.usuario.findUnique({ where: { id: idObjetivo } });
+  if (!objetivo || objetivo.adultoMayorId !== solicitante.adultoMayorId) {
+    throw crearError(404, 'Esa persona no está en la red de apoyo de tu adulto mayor');
+  }
+
+  if (objetivo.rol === 'PACIENTE') {
+    throw crearError(409, 'No puedes desvincular al adulto mayor de su propia cuenta');
+  }
+
+  await prisma.usuario.update({
+    where: { id: objetivo.id },
+    data: { adultoMayorId: null },
+  });
+
+  return { ok: true, id: objetivo.id, nombre: objetivo.nombre };
+}
+
 // --- CREAR PACIENTE (solo CUIDADOR, cuenta sin vincular) ---
 // crea al adulto mayor, le genera un código de invitación y asocia al cuidador.
 export async function crearPaciente(usuarioToken, datos) {

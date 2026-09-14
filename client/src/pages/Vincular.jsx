@@ -8,9 +8,11 @@
 //   - FAMILIAR / PACIENTE: ingresan ese código y quedan asociados al mismo
 //     adulto mayor (sin duplicarlo).
 //
-// También sirve de "re-ver el código": si un cuidador YA vinculado entra acá
-// (desde el módulo Familia del inicio), le muestro el código para compartir de
-// nuevo. Un familiar/paciente ya vinculado no tiene nada que hacer -> al inicio.
+// También sirve de "re-ver el código": si un cuidador YA vinculado entra acá,
+// le muestro el código en solo lectura. La gestión de la cuenta del adulto mayor
+// (crear usuario / PIN) y de los accesos se hace ahora desde el módulo "Familia"
+// del FAMILIAR (rol estable de la red). Un familiar/paciente ya vinculado no tiene
+// nada que hacer acá -> al inicio.
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,13 +22,7 @@ import {
   obtenerEstado,
   crearPaciente,
   unirConCodigo,
-  crearCuentaPaciente,
-  cambiarPinPaciente,
 } from '../api/vinculacion.js';
-import { PinPad } from '../components/ui/PinPad.jsx';
-
-// mismo formato de nombre de usuario que valida el backend
-const USUARIO_REGEX = /^[a-z0-9._-]+$/;
 import './Login.css';
 import './Vincular.css';
 
@@ -104,58 +100,28 @@ function Vincular() {
   );
 }
 
-// --- cuidador YA vinculado (vista "Familia"): crear la cuenta del paciente y
-//     compartir el código con la familia ---
+// --- cuidador YA vinculado: vista de SOLO LECTURA con el código para compartir.
+//     La cuenta del adulto mayor y los accesos los administra el FAMILIAR desde
+//     el módulo "Familia" ---
 function VerCodigo({ estado, navigate }) {
-  // guardo local la info de la cuenta del paciente para poder actualizarla apenas
-  // se crea, sin volver a pedir el estado al backend
-  const [cuentaPaciente, setCuentaPaciente] = useState(estado.cuentaPaciente);
-
   return (
     <div className="card">
       <CabeceraMovil />
-      <h1 className="form-title">Familia y accesos</h1>
+      <h1 className="form-title">Tu código</h1>
       <p className="form-sub">
-        Aquí creas la cuenta de{' '}
-        {estado.adultoMayor?.nombre?.split(' ')[0] || 'la persona que cuidas'} y
-        compartes el código para que la familia se conecte.
+        Este es el código de{' '}
+        {estado.adultoMayor?.nombre?.split(' ')[0] || 'la persona que cuidas'}.
+        Compártelo con la familia para que se conecten; ellos administran la cuenta
+        y los accesos.
       </p>
 
-      {/* 1) cuenta del adulto mayor (paciente) */}
-      <section className="bloque-vinc">
-        <h2 className="bloque-titulo">Cuenta del adulto mayor</h2>
-        {cuentaPaciente?.existe ? (
-          <CuentaCreada nombreUsuario={cuentaPaciente.nombreUsuario} />
-        ) : (
-          <FormularioCuentaPaciente
-            nombreSugerido={estado.adultoMayor?.nombre || ''}
-            onCreada={(paciente) =>
-              setCuentaPaciente({
-                existe: true,
-                nombreUsuario: paciente.nombreUsuario,
-              })
-            }
-          />
-        )}
-      </section>
-
-      {/* 2) código para invitar a la familia */}
-      <section className="bloque-vinc">
-        <h2 className="bloque-titulo">Invitar a un familiar</h2>
-        {estado.codigo ? (
-          <>
-            <p className="field-note" style={{ marginBottom: 8 }}>
-              Comparte este código con la familia para que sigan el bienestar de{' '}
-              {estado.adultoMayor?.nombre?.split(' ')[0] || 'la persona'}.
-            </p>
-            <CodigoDestacado codigo={estado.codigo} />
-          </>
-        ) : (
-          <p className="field-note">
-            Esta cuenta no tiene un código de invitación asignado.
-          </p>
-        )}
-      </section>
+      {estado.codigo ? (
+        <CodigoDestacado codigo={estado.codigo} />
+      ) : (
+        <p className="field-note">
+          Esta cuenta no tiene un código de invitación asignado.
+        </p>
+      )}
 
       <button
         type="button"
@@ -166,260 +132,6 @@ function VerCodigo({ estado, navigate }) {
         Volver al inicio
       </button>
     </div>
-  );
-}
-
-// formulario para que el cuidador cree la cuenta del paciente (usuario + clave
-// simple, sin correo). Al crearla, avisa al padre para mostrar "ya creada".
-function FormularioCuentaPaciente({ nombreSugerido, onCreada }) {
-  const [nombre, setNombre] = useState(nombreSugerido);
-  // sugiero un usuario a partir del primer nombre (en minúsculas, sin acentos)
-  const [nombreUsuario, setNombreUsuario] = useState(
-    nombreSugerido
-      .split(' ')[0]
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '') // saca los acentos (marcas combinantes)
-      .replace(/[^a-z0-9._-]/g, '')
-  );
-  // "password" es el PIN de 4 dígitos (así lo espera el backend)
-  const [password, setPassword] = useState('');
-  const [touched, setTouched] = useState({ nombre: false, usuario: false, pin: false });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const usuarioLimpio = nombreUsuario.trim().toLowerCase();
-  const nombreEmpty = touched.nombre && nombre.trim() === '';
-  const pinIncompleto = touched.pin && !/^\d{4}$/.test(password);
-
-  let usuarioMsg = '';
-  if (touched.usuario) {
-    if (usuarioLimpio === '') usuarioMsg = 'Escribe un nombre de usuario.';
-    else if (usuarioLimpio.length < 3) usuarioMsg = 'Debe tener al menos 3 caracteres.';
-    else if (!USUARIO_REGEX.test(usuarioLimpio))
-      usuarioMsg = 'Solo letras, números, punto, guion o guion bajo (sin espacios).';
-  }
-  const usuarioInvalido = usuarioMsg !== '';
-
-  function valido() {
-    return (
-      nombre.trim() !== '' &&
-      usuarioLimpio.length >= 3 &&
-      USUARIO_REGEX.test(usuarioLimpio) &&
-      /^\d{4}$/.test(password)
-    );
-  }
-
-  async function submit(e) {
-    e.preventDefault();
-    setTouched({ nombre: true, usuario: true, pin: true });
-    setError('');
-    if (!valido()) return;
-
-    setLoading(true);
-    try {
-      const { usuario } = await crearCuentaPaciente({
-        nombre: nombre.trim(),
-        nombreUsuario: usuarioLimpio,
-        password,
-      });
-      onCreada(usuario);
-    } catch (err) {
-      const data = err.response?.data;
-      setError(
-        data?.detalles?.[0]?.mensaje ||
-          data?.error ||
-          'No pudimos crear la cuenta. Inténtalo de nuevo.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} noValidate>
-      <p className="field-note" style={{ marginBottom: 12 }}>
-        Elige un usuario y un PIN de 4 números, y entrégaselos al adulto mayor. No
-        hace falta correo.
-      </p>
-
-      {error && (
-        <div className="alert" role="alert">
-          <span className="ico">!</span>
-          <span className="txt">
-            <strong>Algo salió mal</strong>
-            <span>{error}</span>
-          </span>
-        </div>
-      )}
-
-      <div className={`field ${nombreEmpty ? 'invalid' : ''}`}>
-        <label htmlFor="pac-nombre">Nombre del adulto mayor</label>
-        <div className="input-wrap">
-          <input
-            id="pac-nombre"
-            type="text"
-            value={nombre}
-            aria-invalid={nombreEmpty}
-            onChange={(e) => {
-              setNombre(e.target.value);
-              setError('');
-            }}
-            onBlur={() => setTouched((s) => ({ ...s, nombre: true }))}
-          />
-        </div>
-        {nombreEmpty && (
-          <div className="field-hint">
-            <span className="mark">!</span> Escribe el nombre.
-          </div>
-        )}
-      </div>
-
-      <div className={`field ${usuarioInvalido ? 'invalid' : ''}`}>
-        <label htmlFor="pac-usuario">Nombre de usuario</label>
-        <div className="input-wrap">
-          <input
-            id="pac-usuario"
-            type="text"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            placeholder="Por ejemplo: rosa"
-            value={nombreUsuario}
-            aria-invalid={usuarioInvalido}
-            onChange={(e) => {
-              setNombreUsuario(e.target.value);
-              setError('');
-            }}
-            onBlur={() => setTouched((s) => ({ ...s, usuario: true }))}
-          />
-        </div>
-        {usuarioInvalido ? (
-          <div className="field-hint">
-            <span className="mark">!</span> {usuarioMsg}
-          </div>
-        ) : (
-          <div className="field-note">Con este nombre iniciará sesión el paciente.</div>
-        )}
-      </div>
-
-      <div className={`field ${pinIncompleto ? 'invalid' : ''}`}>
-        <label>PIN de 4 números</label>
-        <PinPad
-          value={password}
-          onChange={(v) => {
-            setPassword(v);
-            setError('');
-            if (v.length === 4) setTouched((s) => ({ ...s, pin: true }));
-          }}
-        />
-        {pinIncompleto ? (
-          <div className="field-hint" style={{ textAlign: 'center' }}>
-            <span className="mark">!</span> El PIN debe ser de 4 números.
-          </div>
-        ) : (
-          <div className="field-note" style={{ textAlign: 'center' }}>
-            Algo fácil de recordar y dictar (por ejemplo 1234).
-          </div>
-        )}
-      </div>
-
-      <button type="submit" className="btn-primary" disabled={loading}>
-        {loading ? (
-          <>
-            <span className="spinner"></span> Creando la cuenta…
-          </>
-        ) : (
-          'Crear cuenta del adulto mayor'
-        )}
-      </button>
-    </form>
-  );
-}
-
-// cuenta del paciente ya creada: muestra el usuario y deja cambiar el PIN por si
-// el adulto mayor lo olvidó.
-function CuentaCreada({ nombreUsuario }) {
-  const [editando, setEditando] = useState(false);
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [listo, setListo] = useState(false);
-
-  async function guardar(nuevoPin) {
-    setError('');
-    setLoading(true);
-    try {
-      await cambiarPinPaciente(nuevoPin);
-      setListo(true);
-      setEditando(false);
-      setPin('');
-      setTimeout(() => setListo(false), 2500);
-    } catch (err) {
-      const data = err.response?.data;
-      setError(data?.detalles?.[0]?.mensaje || data?.error || 'No pudimos cambiar el PIN.');
-      setPin('');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <>
-      <p className="field-note">
-        Ya está creada. El adulto mayor inicia sesión tocando su tarjeta y su PIN.
-        Usuario: <strong>{nombreUsuario}</strong>.
-      </p>
-
-      {listo && (
-        <p className="field-note" style={{ color: 'var(--primary)' }}>
-          ✓ PIN actualizado.
-        </p>
-      )}
-
-      {editando ? (
-        <div className="field" style={{ marginTop: 8 }}>
-          <label style={{ textAlign: 'center', display: 'block' }}>Nuevo PIN de 4 números</label>
-          {error && (
-            <div className="alert" role="alert">
-              <span className="ico">!</span>
-              <span className="txt">
-                <strong>Algo salió mal</strong>
-                <span>{error}</span>
-              </span>
-            </div>
-          )}
-          <PinPad
-            value={pin}
-            onChange={(v) => {
-              setPin(v);
-              setError('');
-              if (v.length === 4) guardar(v);
-            }}
-            disabled={loading}
-          />
-          <button
-            type="button"
-            className="btn-secundario"
-            onClick={() => {
-              setEditando(false);
-              setPin('');
-              setError('');
-            }}
-          >
-            Cancelar
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="btn-secundario"
-          onClick={() => setEditando(true)}
-        >
-          Cambiar PIN
-        </button>
-      )}
-    </>
   );
 }
 

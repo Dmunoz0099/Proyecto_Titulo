@@ -22,6 +22,18 @@ router.use(autenticar);
 // ¿estoy vinculado? (y el código si soy cuidador)
 router.get('/estado', vinculacionController.estado);
 
+// la red de apoyo: adulto mayor + personas conectadas (cualquier rol vinculado)
+router.get('/red', vinculacionController.redApoyo);
+
+// quitar a una persona de la red de apoyo (p. ej. cuidador que renuncia).
+// Lo pueden hacer el CUIDADOR o el FAMILIAR; el service protege al paciente y
+// evita que alguien se quite a sí mismo.
+router.delete(
+  '/miembro/:id',
+  autorizar('CUIDADOR', 'FAMILIAR'),
+  vinculacionController.desvincular
+);
+
 // el cuidador crea al adulto mayor y obtiene un código para compartir
 router.post(
   '/paciente',
@@ -33,18 +45,20 @@ router.post(
 // cualquiera sin vincular se une con el código
 router.post('/unir', validar(esquemaUnir), vinculacionController.unir);
 
-// el cuidador crea la cuenta del paciente (usuario + PIN de 4 números, sin correo)
+// crea la cuenta del paciente (usuario + PIN de 4 números, sin correo). Ahora la
+// gestiona el FAMILIAR (rol estable de la red); se deja también al CUIDADOR para
+// no bloquear cuentas antiguas donde él la creó.
 router.post(
   '/cuenta-paciente',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaCuentaPaciente),
   vinculacionController.crearCuentaPaciente
 );
 
-// el cuidador cambia el PIN del paciente (si lo olvidó, etc.)
+// cambia el PIN del paciente (si lo olvidó, etc.) — mismo criterio de roles.
 router.post(
   '/pin-paciente',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaPin),
   vinculacionController.cambiarPinPaciente
 );

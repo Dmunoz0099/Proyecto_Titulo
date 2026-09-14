@@ -12,10 +12,10 @@ import './Login.css';
 
 // opciones de rol con textos amables para que cualquiera entienda qué elige.
 // El "valor" sí es el del enum del backend.
-// Ojo: el PACIENTE (adulto mayor) NO se registra solo. Su cuenta la crea la
-// persona cuidadora desde dentro de la app (con un usuario y una clave simple),
-// porque no se le pide correo ni que recuerde una contraseña. Por eso acá solo
-// están CUIDADOR y FAMILIAR.
+// Ojo: el PACIENTE (adulto mayor) NO se registra solo. Su cuenta la crea el
+// FAMILIAR desde dentro de la app (con un usuario y una clave simple), porque no
+// se le pide correo ni que recuerde una contraseña. Por eso acá solo están
+// CUIDADOR y FAMILIAR.
 const ROLES = [
   {
     valor: 'CUIDADOR',
@@ -37,7 +37,7 @@ const ROLES = [
 const SIGUIENTE_PASO = {
   CUIDADOR: 'Después crearás el perfil de la persona que vas a cuidar.',
   FAMILIAR:
-    'Necesitarás el código de invitación que te comparta la persona cuidadora.',
+    'Necesitarás el código de invitación que te comparta la persona cuidadora. Luego podrás crear la cuenta del adulto mayor y gestionar los accesos.',
 };
 
 // mismo formato de nombre de usuario que valida el backend

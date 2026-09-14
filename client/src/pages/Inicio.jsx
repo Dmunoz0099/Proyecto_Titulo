@@ -289,28 +289,20 @@ function Inicio() {
                 to="/juegos"
               />
             )}
-            {/* el cuidador entra acá a crear la cuenta del adulto mayor y a
-                compartir el código con la familia; el familiar aún no gestiona la
-                red de apoyo, queda "Próximamente" */}
-            {usuario.rol === 'CUIDADOR' ? (
-              <Module
-                tone="primary"
-                icon="users"
-                name="Familia y accesos"
-                desc="Crea la cuenta del adulto mayor y comparte el código con la familia."
-                foot="Abrir"
-                to="/vincular"
-              />
-            ) : (
-              <Module
-                tone="primary"
-                icon="users"
-                name="Familia"
-                desc="Contactos y personas de confianza."
-                foot="Próximamente"
-                disabled
-              />
-            )}
+            {/* ambos entran a /familia: el familiar gestiona la cuenta del
+                paciente y los accesos; el cuidador la ve en solo lectura */}
+            <Module
+              tone="primary"
+              icon="users"
+              name="Familia"
+              desc={
+                usuario.rol === 'CUIDADOR'
+                  ? 'La red de apoyo del adulto mayor y quiénes lo acompañan.'
+                  : 'Red de apoyo, cuenta del adulto mayor y código para invitar.'
+              }
+              foot="Abrir"
+              to="/familia"
+            />
           </div>
         )}
       </main>

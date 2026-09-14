@@ -60,14 +60,16 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
   cuidador/familiar pasa por `/vincular`. El cuidador crea al adulto mayor y recibe un
   código corto (`CM-XXXXX`); el familiar se une al mismo adulto mayor con ese código
   (sin duplicar datos). Al vincular se re-emite el JWT ya con el vínculo.
-- **Cuenta del paciente creada por el cuidador**: el adulto mayor no se registra solo.
-  Desde "Familia y accesos", el cuidador le crea un usuario con una clave simple (sin
-  correo) y se los entrega; esa cuenta queda ligada al mismo adulto mayor.
+- **Cuenta del paciente creada por el familiar**: el adulto mayor no se registra solo.
+  Desde el módulo **"Familia"**, el familiar le crea un usuario con una clave simple
+  (sin correo) y se los entrega; esa cuenta queda ligada al mismo adulto mayor. Antes
+  lo hacía el cuidador, pero se movió al familiar por ser el rol estable de la red (el
+  cuidador puede renunciar o faltar).
 - **Login accesible para el adulto mayor**: (1) **tarjetas de usuario** — el
   dispositivo recuerda quiénes ya entraron y los muestra como tarjetas grandes con
   avatar y nombre; se toca la propia y no se teclea el usuario; (2) **PIN numérico** —
   el paciente entra con un **PIN de 4 números** en un teclado grande (sin escribir
-  texto); el cuidador lo crea y lo puede cambiar desde "Familia y accesos";
+  texto); el familiar lo crea y lo puede cambiar desde el módulo "Familia";
   (3) **"Mantener sesión iniciada"** (activada por defecto) que emite un token de
   larga duración (30 días), para no volver a iniciar sesión cada día en el
   dispositivo de casa.
@@ -85,6 +87,14 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
   Complementa a la agenda (que es la rutina diaria, sin fecha).
 - **Alertas SOS**: el paciente pide ayuda con un botón grande; el cuidador/familiar
   las ven (pendientes primero) y las marcan como atendidas.
+- **Familia (red de apoyo)**: módulo `/familia` con distinto alcance por rol, porque
+  la familia es el rol **estable** (el cuidador puede renunciar o faltar).
+  - **Familiar (gestiona)**: ve la red de apoyo, **crea/gestiona la cuenta del adulto
+    mayor** (usuario + PIN), comparte el **código de invitación** (botón copiar) para
+    sumar a una nueva persona cuidadora o a otro familiar, y puede **desvincular**
+    ("Quitar", con confirmación) a cualquiera de la red menos a sí mismo y al paciente.
+  - **Cuidador (solo lectura)**: ve los datos del adulto mayor, con quién está
+    conectado y el código para copiar, pero sin acciones de gestión.
 - **Juegos — Memorice**: juego de parejas con emojis por temas (frutas, autos,
   objetos, variado) y 3 niveles, sin presión de tiempo. La victoria solo se declara
   cuando la última carta está dada vuelta, y el modal aparece un instante después
@@ -322,9 +332,9 @@ para todos):
 
 > Para probar la **vinculación desde cero** (usuarios reales): regístrate como
 > CUIDADOR → la app te lleva a `/vincular`, creas al adulto mayor y recibes un
-> código. Desde "Familia y accesos" creas además la **cuenta del paciente** (usuario
-> + clave simple). Una cuenta nueva de FAMILIAR se une al mismo adulto mayor con el
-> código. (El rol PACIENTE ya no aparece en el registro público: lo crea el cuidador.)
+> código. Una cuenta nueva de FAMILIAR se une al mismo adulto mayor con ese código y,
+> desde el módulo **"Familia"**, crea la **cuenta del paciente** (usuario + PIN). (El
+> rol PACIENTE ya no aparece en el registro público: lo crea el familiar.)
 
 ---
 

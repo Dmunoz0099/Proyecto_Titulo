@@ -9,6 +9,20 @@ export async function obtenerEstado() {
   return data;
 }
 
+// la red de apoyo del adulto mayor: sus datos + las personas conectadas.
+// Devuelve { adultoMayor: { nombre, fechaNacimiento, notas }, miembros: [...] }.
+export async function obtenerRedApoyo() {
+  const { data } = await api.get('/vinculacion/red');
+  return data;
+}
+
+// quita a una persona de la red de apoyo (cuidador que renuncia, etc.).
+// Devuelve { ok, id, nombre }. El backend valida permisos y protege al paciente.
+export async function desvincularMiembro(id) {
+  const { data } = await api.delete(`/vinculacion/miembro/${id}`);
+  return data;
+}
+
 // el cuidador crea al adulto mayor. Devuelve { usuario, token, adultoMayor, codigo }.
 export async function crearPaciente(datos) {
   const { data } = await api.post('/vinculacion/paciente', datos);

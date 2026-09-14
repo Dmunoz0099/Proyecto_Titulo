@@ -1,0 +1,104 @@
+/* Familia.css -> estilos del módulo "Familia" (red de apoyo, solo lectura).
+   Reusa page/container/card/tile de cuidamayor.css; acá solo lo propio. */
+
+.fam-head { margin-bottom: var(--sp-5); }
+.fam-sub { font-size: var(--fs-lg); margin-top: 4px; max-width: 52ch; }
+
+/* tarjeta del adulto mayor */
+.fam-am { display: flex; align-items: center; gap: 18px; padding: 24px; margin-bottom: var(--sp-6); }
+.fam-am-tile { width: 72px; height: 72px; }
+.fam-am-info { min-width: 0; }
+.fam-am-nombre { font-size: var(--fs-h2); font-weight: 800; letter-spacing: -.01em; }
+.fam-am-meta { font-size: var(--fs-lg); color: var(--ink-soft); font-weight: 600; margin-top: 2px; }
+.fam-am-notas { font-size: var(--fs-body); color: var(--ink-soft); margin-top: 8px; max-width: 56ch; }
+
+/* lista de personas conectadas */
+.fam-titulo { font-size: var(--fs-h3); font-weight: 800; margin: 0 0 var(--sp-3); }
+.fam-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--sp-3); }
+.fam-miembro { display: flex; align-items: center; gap: 16px; padding: 18px 20px; }
+
+.fam-avatar {
+  width: 56px; height: 56px; border-radius: 999px;
+  display: grid; place-items: center; flex: none;
+  font-weight: 800; font-size: var(--fs-lg);
+}
+
+.fam-miembro-info { min-width: 0; flex: 1; }
+
+/* botón para quitar a una persona de la red (desvincular) */
+.fam-quitar {
+  margin-left: auto; flex: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1.5px solid var(--line-strong); background: var(--surface);
+  color: var(--ink-soft); font-family: inherit; font-weight: 700;
+  font-size: var(--fs-sm); padding: 8px 14px; border-radius: 999px;
+  cursor: pointer; transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.fam-quitar:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+.fam-quitar:focus-visible { outline: 3px solid var(--danger); outline-offset: 2px; }
+.fam-miembro-nombre {
+  font-size: var(--fs-h3); font-weight: 700; line-height: 1.2;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.fam-miembro-rol { font-size: var(--fs-body); color: var(--ink-soft); font-weight: 600; margin-top: 2px; }
+
+/* insignia "Tú" para la propia cuenta */
+.fam-yo {
+  font-size: var(--fs-sm); font-weight: 800; letter-spacing: .03em;
+  padding: 2px 10px; border-radius: 999px;
+  background: var(--tile-primary-bg); color: var(--tile-primary-fg);
+}
+
+.fam-nota { font-size: var(--fs-body); margin-top: var(--sp-5); max-width: 60ch; }
+.fam-empty { padding: 24px; text-align: center; color: var(--ink-soft); }
+
+/* separación extra para el título de "sumar a alguien" */
+.fam-titulo-sep { margin-top: var(--sp-6); }
+
+/* bloque del código de invitación */
+.fam-codigo-card { padding: 24px; }
+.fam-codigo-texto { font-size: var(--fs-body); color: var(--ink-soft); max-width: 58ch; margin: 0 0 16px; }
+
+.fam-codigo-box {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px;
+  border-radius: var(--r-md);
+  border: 2px dashed color-mix(in oklab, var(--primary), white 55%);
+  background: color-mix(in oklab, var(--primary), white 92%);
+}
+.fam-codigo-label {
+  font-size: var(--fs-sm); font-weight: 700;
+  color: var(--ink-soft); text-transform: uppercase; letter-spacing: .08em;
+}
+.fam-codigo-valor {
+  font-size: var(--fs-display); font-weight: 800; letter-spacing: .14em;
+  color: var(--primary-strong);
+}
+.fam-codigo-btn {
+  margin-top: 6px;
+  border: 1.5px solid var(--primary); background: #fff; color: var(--primary-strong);
+  font-family: inherit; font-weight: 700; font-size: var(--fs-body);
+  padding: 12px 22px; border-radius: 999px; cursor: pointer;
+  transition: background .15s ease;
+}
+.fam-codigo-btn:hover { background: color-mix(in oklab, var(--primary), white 88%); }
+.fam-codigo-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* aviso de error al desvincular */
+.fam-aviso {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; margin-bottom: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--danger-bg); color: var(--danger);
+  font-weight: 600; font-size: var(--fs-body);
+}
+.fam-aviso span { flex: 1; }
+.fam-aviso-x {
+  border: none; background: transparent; color: inherit;
+  cursor: pointer; padding: 4px; display: inline-flex; border-radius: 8px;
+}
+.fam-aviso-x:hover { background: color-mix(in oklab, var(--danger), transparent 85%); }
+
+@media (max-width: 760px) {
+  .fam-lista { grid-template-columns: 1fr; }
+}

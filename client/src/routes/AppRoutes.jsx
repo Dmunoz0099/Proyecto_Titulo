@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '../pages/Login.jsx';
 import Registro from '../pages/Registro.jsx';
 import Vincular from '../pages/Vincular.jsx';
+import Familia from '../pages/Familia.jsx';
 import Inicio from '../pages/Inicio.jsx';
 import MedicamentosPage from '../features/medicamentos/MedicamentosPage.jsx';
 import AgendaPage from '../features/agenda/AgendaPage.jsx';
@@ -68,6 +69,17 @@ export function AppRoutes() {
         element={
           <RutaProtegida>
             <CalendarioPage />
+          </RutaProtegida>
+        }
+      />
+
+      {/* familia: la red de apoyo. El FAMILIAR gestiona la cuenta del paciente y
+          los accesos; el CUIDADOR la ve en solo lectura (por ahora) */}
+      <Route
+        path="/familia"
+        element={
+          <RutaProtegida roles={['FAMILIAR', 'CUIDADOR']}>
+            <Familia />
           </RutaProtegida>
         }
       />

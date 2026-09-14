@@ -14,6 +14,29 @@ export async function estado(req, res, next) {
   }
 }
 
+// GET /api/vinculacion/red (cualquier rol vinculado): la red de apoyo
+export async function redApoyo(req, res, next) {
+  try {
+    const info = await vinculacionService.redApoyo(req.usuario);
+    res.json(info);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// DELETE /api/vinculacion/miembro/:id (CUIDADOR o FAMILIAR vinculado)
+export async function desvincular(req, res, next) {
+  try {
+    const resultado = await vinculacionService.desvincular(
+      req.usuario,
+      req.params.id
+    );
+    res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
 // POST /api/vinculacion/paciente (solo CUIDADOR)
 export async function crearPaciente(req, res, next) {
   try {
