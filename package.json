@@ -5,7 +5,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "vercel-build": "prisma generate --schema=server/prisma/schema.prisma && npm --prefix client install && npm --prefix client run build"
+    "dev": "pnpm -r --parallel dev",
+    "dev:server": "pnpm -C server dev",
+    "dev:client": "pnpm -C client dev",
+    "build": "pnpm -C client build",
+    "seed": "pnpm -C server seed",
+    "vercel-build": "prisma generate --schema=server/prisma/schema.prisma && pnpm -C client build"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

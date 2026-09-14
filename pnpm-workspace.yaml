@@ -1,0 +1,10 @@
+packages:
+  - client
+  - server
+
+# Prisma necesita correr sus scripts de postinstall para generar el cliente
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true

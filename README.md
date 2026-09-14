@@ -265,14 +265,19 @@ Esto lee `schema.prisma`, crea las tablas en Supabase y genera el cliente.
 
 ## 🚀 3) Instalar dependencias y levantar el proyecto
 
-> Hay que instalar dependencias en **cada** carpeta (`server` y `client`).
-
-### Backend
+El proyecto es un **workspace de pnpm**: `client` y `server` se instalan juntos con
+un solo comando desde la raíz.
 
 ```bash
-cd server
-pnpm install        # instala dependencias
-pnpm dev            # arranca el servidor con recarga automática (nodemon)
+# En la raíz del proyecto
+pnpm install        # instala las dependencias de client y server de una vez
+```
+
+### Levantar todo de una vez (recomendado)
+
+```bash
+# En la raíz del proyecto
+pnpm dev            # arranca server (nodemon) y client (Vite) en paralelo
 ```
 
 Deberías ver en consola:
@@ -281,13 +286,17 @@ Deberías ver en consola:
 🚀 Servidor escuchando en http://localhost:4000
 ```
 
-### Frontend (en otra terminal)
+### Levantar por separado (dos terminales)
+
+Si prefieres logs separados:
 
 ```bash
-cd client
-pnpm install        # instala dependencias
-pnpm dev            # arranca Vite en http://localhost:8099
+pnpm dev:server     # solo el backend (nodemon), en una terminal
+pnpm dev:client     # solo el frontend (Vite), en otra terminal
 ```
+
+> El frontend usa el **proxy de Vite**: las peticiones a `/api` se reenvían
+> automáticamente a `http://localhost:4000` (sin problemas de CORS en desarrollo).
 
 > El frontend usa el **proxy de Vite**: las peticiones a `/api` se reenvían
 > automáticamente a `http://localhost:4000` (sin problemas de CORS en desarrollo).
@@ -295,8 +304,8 @@ pnpm dev            # arranca Vite en http://localhost:8099
 ### Datos de prueba (seed)
 
 ```bash
-cd server
-pnpm seed
+# En la raíz
+pnpm seed           # equivale a: pnpm -C server seed
 ```
 
 Crea un adulto mayor (Luis Zapata, con código de invitación `CM-DEMO1`) con
