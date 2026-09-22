@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { Icon } from '../../../components/ui/Icon.jsx';
+import { CampoHora } from '../../../components/ui/CampoHora.jsx';
 import {
   CATEGORIAS_ICONOS,
   iconosDeCategoria,
@@ -72,13 +73,7 @@ function EventoCalendarioModal({
             </div>
             <div className="field">
               <label htmlFor="c-hora">Hora</label>
-              <input
-                id="c-hora"
-                type="time"
-                className="control"
-                value={hora}
-                onChange={(e) => setHora(e.target.value)}
-              />
+              <CampoHora id="c-hora" value={hora} onChange={setHora} />
             </div>
           </div>
 
@@ -121,7 +116,8 @@ function EventoCalendarioModal({
                       aria-label={ic.label}
                       aria-pressed={icono === ic.key}
                     >
-                      <Icon name={ic.key} size={30} />
+                      <Icon name={ic.key} size={28} />
+                      <span className="cap">{ic.corto || ic.label}</span>
                     </button>
                   ))}
                 </div>

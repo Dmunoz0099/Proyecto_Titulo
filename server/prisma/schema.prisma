@@ -42,6 +42,14 @@ enum EstadoAnimo {
   MAL
 }
 
+// Qué juego de estimulación cognitiva generó la sesión. Sirve para distinguir el
+// progreso de cada juego en el seguimiento.
+enum TipoJuego {
+  PALABRAS    // el primer juego (Memorice de parejas). Es el valor por defecto
+              // para no romper las sesiones que ya estaban guardadas.
+  SOPA_LETRAS // la sopa de letras
+}
+
 // ============================================================
 //  MODELOS (tablas)
 // ============================================================
@@ -228,16 +236,21 @@ model AlertaSos {
 
 // Sesión de un juego de estimulación cognitiva (resultados).
 model SesionJuego {
-  id               String   @id @default(uuid()) @db.Uuid
+  id               String    @id @default(uuid()) @db.Uuid
   fecha            DateTime
+  // qué juego fue. Con default PALABRAS las sesiones viejas (que no tenían la
+  // columna) quedan asignadas al primer juego sin tener que tocarlas.
+  tipoJuego        TipoJuego @default(PALABRAS)
   puntaje          Int
   aciertos         Int
   errores          Int
   duracionSegundos Int
-  adultoMayorId    String   @db.Uuid
+  adultoMayorId    String    @db.Uuid
 
   // Relaciones
   adultoMayor AdultoMayor @relation(fields: [adultoMayorId], references: [id])
 
   @@index([adultoMayorId])
+  // para filtrar el seguimiento por juego de un mismo adulto mayor
+  @@index([adultoMayorId, tipoJuego])
 }

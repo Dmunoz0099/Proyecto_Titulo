@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { Icon } from '../../../components/ui/Icon.jsx';
+import { CampoHora } from '../../../components/ui/CampoHora.jsx';
 import {
   CATEGORIAS_ICONOS,
   iconosDeCategoria,
@@ -50,13 +51,7 @@ function EventoModal({ inicial, onCerrar, onGuardar, guardando }) {
           <div className="grid-2">
             <div className="field">
               <label htmlFor="e-hora">Hora</label>
-              <input
-                id="e-hora"
-                type="time"
-                className="control"
-                value={hora}
-                onChange={(e) => setHora(e.target.value)}
-              />
+              <CampoHora id="e-hora" value={hora} onChange={setHora} />
             </div>
             <div className="field">
               <label htmlFor="e-titulo">Actividad</label>
@@ -98,7 +93,8 @@ function EventoModal({ inicial, onCerrar, onGuardar, guardando }) {
                       aria-label={ic.label}
                       aria-pressed={icono === ic.key}
                     >
-                      <Icon name={ic.key} size={30} />
+                      <Icon name={ic.key} size={28} />
+                      <span className="cap">{ic.corto || ic.label}</span>
                     </button>
                   ))}
                 </div>

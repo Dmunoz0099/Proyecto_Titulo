@@ -226,6 +226,10 @@ input[type='time'].control {
   appearance: none;
 }
 textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-height: 1.45; }
+/* selector de hora: dos listas (hora y minutos) en vez del <input type=time> */
+.campo-hora { display: flex; align-items: center; gap: 8px; }
+.campo-hora select.control { flex: 1; padding: 0 12px; cursor: pointer; text-align: center; text-align-last: center; }
+.campo-hora-sep { font-size: var(--fs-h2); font-weight: 800; color: var(--ink-soft); }
 .control:focus {
   outline: none;
   border-color: var(--primary);
@@ -290,11 +294,13 @@ textarea.control { min-height: 96px; padding: 12px 16px; resize: vertical; line-
 .icon-grupo { margin-top: 14px; }
 .icon-grupo:first-of-type { margin-top: 6px; }
 .icon-grupo-titulo { font-size: var(--fs-small); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .03em; }
-.icon-pick { display: flex; flex-wrap: wrap; gap: 12px; }
-.icon-pick button { width: 64px; height: 64px; border-radius: var(--r-md); border: 2px solid var(--line-strong); background: var(--surface);
-  display: grid; place-items: center; cursor: pointer; color: var(--ink-soft); transition: all .12s; }
+.icon-pick { display: flex; flex-wrap: wrap; gap: 10px; }
+.icon-pick button { width: 84px; min-height: 82px; border-radius: var(--r-md); border: 2px solid var(--line-strong); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px;
+  cursor: pointer; color: var(--ink-soft); transition: all .12s; }
 .icon-pick button.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-strong); }
 .icon-pick button:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.icon-pick .cap { font-size: 12px; line-height: 1.15; font-weight: 600; text-align: center; }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
 @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }

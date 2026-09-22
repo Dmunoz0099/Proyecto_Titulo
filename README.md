@@ -33,7 +33,7 @@ Cada rol tiene **acciones propias**, no solo más o menos permisos:
 
 | Rol          | Qué puede hacer |
 | ------------ | --------------- |
-| **PACIENTE** | Vista simple y accesible. Botón **SOS "Necesito ayuda"** (exclusivo), campana de recordatorios, marcar sus tomas, jugar Memorice. |
+| **PACIENTE** | Vista simple y accesible. Botón **SOS "Necesito ayuda"** (exclusivo), campana de recordatorios, marcar sus tomas, jugar (Memorice y Sopa de letras). |
 | **CUIDADOR** | Único que **gestiona**: crea/edita/elimina medicamentos y eventos de agenda. Ve y atiende alertas SOS (panel del inicio + campana de notificaciones). Puede jugar y ve el seguimiento. |
 | **FAMILIAR** | **Monitorea** a distancia: consulta medicamentos, agenda y progreso. Ve y atiende alertas SOS (panel del inicio + campana de notificaciones). No gestiona ni juega. |
 
@@ -95,11 +95,13 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
     ("Quitar", con confirmación) a cualquiera de la red menos a sí mismo y al paciente.
   - **Cuidador (solo lectura)**: ve los datos del adulto mayor, con quién está
     conectado y el código para copiar, pero sin acciones de gestión.
-- **Juegos — Memorice**: juego de parejas con emojis por temas (frutas, autos,
-  objetos, variado) y 3 niveles, sin presión de tiempo. La victoria solo se declara
-  cuando la última carta está dada vuelta, y el modal aparece un instante después
-  para verla girar. Cada partida se guarda como sesión y alimenta la pantalla de
-  **Seguimiento** (progreso partida a partida).
+- **Juegos** (dos, con selección previa): **Memorice** (parejas de emojis por temas
+  —frutas, autos, objetos, variado— y 3 niveles, sin presión de tiempo; la victoria
+  solo se declara cuando la última carta está dada vuelta) y **Sopa de letras**
+  (tablero 8×8/10×10 con palabras cortas en español por tema —animales, frutas, casa,
+  variado—, se marca cada palabra tocando su primera y última letra). Cada partida se
+  guarda como sesión (con su `tipoJuego`) y alimenta la pantalla de **Seguimiento**,
+  que permite **filtrar por juego** (progreso partida a partida).
 - **Campana de recordatorios** (paciente): avisa de tomas olvidadas (hora pasada sin
   registro) y actividades recientes; permite resolver la toma o avisar al cuidador.
   Además muestra un aviso informativo de los **próximos eventos del calendario** (hoy
@@ -130,7 +132,7 @@ Proyecto_Titulo/
 │       ├── context/         # AuthContext (sesión global)
 │       ├── hooks/           # useAuth
 │       ├── pages/           # Login, Registro, Vincular, Inicio
-│       ├── routes/          # AppRoutes + RutaProtegida (por rol y vínculo)
+│       ├── routes/          # AppRoutes + RutaProtegida + ScrollToTop
 │       ├── styles/          # Paleta (variables CSS) y estilos CuidaMayor
 │       └── utils/           # Utilidades del frontend
 │
@@ -187,8 +189,8 @@ permitidos.
 | POST   | `/alertas` | 🔒 (PACIENTE) Crear alerta SOS |
 | GET    | `/alertas` | 🔒 (CUIDADOR, FAMILIAR) Listar alertas |
 | POST   | `/alertas/:id/atender` | 🔒 (CUIDADOR, FAMILIAR) Atender alerta |
-| POST   | `/juegos/sesiones` | 🔒 (PACIENTE, CUIDADOR) Guardar partida |
-| GET    | `/juegos/sesiones` | 🔒 Historial de partidas |
+| POST   | `/juegos/sesiones` | 🔒 (PACIENTE, CUIDADOR) Guardar partida (con `tipoJuego`) |
+| GET    | `/juegos/sesiones` | 🔒 Historial de partidas; filtro opcional `?tipoJuego=` |
 
 ---
 

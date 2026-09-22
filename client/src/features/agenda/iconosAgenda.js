@@ -13,33 +13,36 @@ export const CATEGORIAS_ICONOS = [
   { cat: 'salidas', label: 'Salidas y trámites' },
 ];
 
+// Cada icono lleva una etiqueta larga (`label`, para el tooltip/lector de
+// pantalla) y una corta (`corto`, la que se muestra debajo del icono en el
+// selector, para que se entienda de un vistazo sin depender del "pasar el mouse").
 export const ICONOS_AGENDA = [
   // rutina del día a día
-  { key: 'cup', label: 'Desayuno / café', tone: 'warn', cat: 'rutina' },
-  { key: 'plate', label: 'Comida', tone: 'warn', cat: 'rutina' },
-  { key: 'drop', label: 'Aseo', tone: 'accent', cat: 'rutina' },
-  { key: 'bed', label: 'Descanso', tone: 'primary', cat: 'rutina' },
-  { key: 'walk', label: 'Caminata', tone: 'accent', cat: 'rutina' },
-  { key: 'puzzle', label: 'Juego', tone: 'primary', cat: 'rutina' },
-  { key: 'sun', label: 'Mañana', tone: 'warn', cat: 'rutina' },
-  { key: 'moon', label: 'Noche', tone: 'primary', cat: 'rutina' },
+  { key: 'cup', label: 'Desayuno / café / té', corto: 'Desayuno', tone: 'warn', cat: 'rutina' },
+  { key: 'plate', label: 'Comida / almuerzo', corto: 'Comida', tone: 'warn', cat: 'rutina' },
+  { key: 'bread', label: 'Once / pan', corto: 'Once', tone: 'warn', cat: 'rutina' },
+  { key: 'drop', label: 'Aseo / baño', corto: 'Aseo', tone: 'accent', cat: 'rutina' },
+  { key: 'bed', label: 'Descanso / siesta', corto: 'Descanso', tone: 'primary', cat: 'rutina' },
+  { key: 'walk', label: 'Caminata', corto: 'Caminata', tone: 'accent', cat: 'rutina' },
+  { key: 'puzzle', label: 'Juego', corto: 'Juego', tone: 'primary', cat: 'rutina' },
+  { key: 'sun', label: 'Despertar', corto: 'Despertar', tone: 'warn', cat: 'rutina' },
+  { key: 'moon', label: 'Dormir', corto: 'Dormir', tone: 'primary', cat: 'rutina' },
   // salud
-  { key: 'pill', label: 'Medicación', tone: 'primary', cat: 'salud' },
-  { key: 'heartpulse', label: 'Control médico', tone: 'primary', cat: 'salud' },
-  { key: 'tooth', label: 'Dentista', tone: 'primary', cat: 'salud' },
-  { key: 'syringe', label: 'Vacuna / inyección', tone: 'primary', cat: 'salud' },
+  { key: 'pill', label: 'Medicación / remedios', corto: 'Remedios', tone: 'primary', cat: 'salud' },
+  { key: 'heartpulse', label: 'Control médico', corto: 'Médico', tone: 'primary', cat: 'salud' },
+  { key: 'tooth', label: 'Dentista', corto: 'Dentista', tone: 'primary', cat: 'salud' },
+  { key: 'syringe', label: 'Vacuna / inyección', corto: 'Vacuna', tone: 'primary', cat: 'salud' },
   // social y familia
-  { key: 'phone', label: 'Llamada', tone: 'accent', cat: 'social' },
-  { key: 'heart', label: 'Visita familiar', tone: 'accent', cat: 'social' },
-  { key: 'gift', label: 'Cumpleaños', tone: 'warn', cat: 'social' },
-  { key: 'church', label: 'Misa / iglesia', tone: 'accent', cat: 'social' },
-  { key: 'book', label: 'Taller / centro de madres', tone: 'primary', cat: 'social' },
+  { key: 'phone', label: 'Llamada', corto: 'Llamada', tone: 'accent', cat: 'social' },
+  { key: 'heart', label: 'Visita familiar', corto: 'Visita', tone: 'accent', cat: 'social' },
+  { key: 'gift', label: 'Cumpleaños', corto: 'Cumpleaños', tone: 'warn', cat: 'social' },
+  { key: 'church', label: 'Misa / iglesia', corto: 'Misa', tone: 'accent', cat: 'social' },
+  { key: 'book', label: 'Taller / centro de madres', corto: 'Taller', tone: 'primary', cat: 'social' },
   // salidas y trámites
-  { key: 'tree', label: 'Paseo / parque', tone: 'accent', cat: 'salidas' },
-  { key: 'bus', label: 'Transporte', tone: 'accent', cat: 'salidas' },
-  { key: 'cart', label: 'Compras / feria', tone: 'warn', cat: 'salidas' },
-  { key: 'bank', label: 'Trámite / banco', tone: 'primary', cat: 'salidas' },
-  { key: 'scissors', label: 'Peluquería', tone: 'accent', cat: 'salidas' },
+  { key: 'tree', label: 'Paseo / parque', corto: 'Paseo', tone: 'accent', cat: 'salidas' },
+  { key: 'cart', label: 'Compras / feria', corto: 'Compras', tone: 'warn', cat: 'salidas' },
+  { key: 'bank', label: 'Trámite / banco', corto: 'Trámite', tone: 'primary', cat: 'salidas' },
+  { key: 'scissors', label: 'Peluquería', corto: 'Peluquería', tone: 'accent', cat: 'salidas' },
 ];
 
 // tono de color de una clave de icono (si no está en el catálogo, "primary")

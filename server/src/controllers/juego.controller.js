@@ -3,6 +3,7 @@
 // responden, mandando los errores a next().
 
 import * as juegoService from '../services/juego.service.js';
+import { TIPOS_JUEGO } from '../validators/juego.validator.js';
 
 // POST /api/juegos/sesiones (PACIENTE o CUIDADOR)
 export async function registrarSesion(req, res, next) {
@@ -15,9 +16,13 @@ export async function registrarSesion(req, res, next) {
 }
 
 // GET /api/juegos/sesiones (cualquier rol con sesión)
+// Filtro opcional por juego: ?tipoJuego=SOPA_LETRAS. Si viene algo que no es un
+// tipo válido, lo ignoro y devuelvo todas.
 export async function listarSesiones(req, res, next) {
   try {
-    const sesiones = await juegoService.listarSesiones(req.usuario);
+    const { tipoJuego } = req.query;
+    const filtro = TIPOS_JUEGO.includes(tipoJuego) ? { tipoJuego } : {};
+    const sesiones = await juegoService.listarSesiones(req.usuario, filtro);
     res.json(sesiones);
   } catch (error) {
     next(error);

@@ -26,6 +26,8 @@
 -- ------------------------------------------------------------
 CREATE TYPE "Rol" AS ENUM ('PACIENTE', 'CUIDADOR', 'FAMILIAR');
 CREATE TYPE "EstadoAnimo" AS ENUM ('BIEN', 'NEUTRAL', 'MAL');
+-- Qué juego generó cada sesión (para distinguir el progreso en el seguimiento).
+CREATE TYPE "TipoJuego" AS ENUM ('PALABRAS', 'SOPA_LETRAS');
 
 -- ------------------------------------------------------------
 --  TABLA: AdultoMayor  (se crea primero porque otras la referencian)
@@ -198,6 +200,8 @@ CREATE TABLE "AlertaSos" (
 CREATE TABLE "SesionJuego" (
   "id"               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   "fecha"            timestamptz NOT NULL,
+  -- qué juego fue; default PALABRAS para no romper sesiones ya guardadas.
+  "tipoJuego"        "TipoJuego" NOT NULL DEFAULT 'PALABRAS',
   "puntaje"          integer     NOT NULL,
   "aciertos"         integer     NOT NULL,
   "errores"          integer     NOT NULL,
@@ -207,6 +211,14 @@ CREATE TABLE "SesionJuego" (
     FOREIGN KEY ("adultoMayorId") REFERENCES "AdultoMayor"("id")
     ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- Si la tabla SesionJuego YA existe (base con datos), NO la recrees: corre solo
+-- esto para sumar el enum, la columna (con su default) y el índice por juego.
+--   CREATE TYPE "TipoJuego" AS ENUM ('PALABRAS', 'SOPA_LETRAS');
+--   ALTER TABLE "SesionJuego"
+--     ADD COLUMN "tipoJuego" "TipoJuego" NOT NULL DEFAULT 'PALABRAS';
+--   CREATE INDEX "SesionJuego_adultoMayorId_tipoJuego_idx"
+--     ON "SesionJuego" ("adultoMayorId", "tipoJuego");
 
 -- ------------------------------------------------------------
 --  ÍNDICES sobre claves foráneas (mejoran el rendimiento de los
@@ -222,6 +234,7 @@ CREATE INDEX "Familiar_adultoMayorId_idx"            ON "Familiar" ("adultoMayor
 CREATE INDEX "EntradaBitacora_adultoMayorId_idx"     ON "EntradaBitacora" ("adultoMayorId");
 CREATE INDEX "EntradaBitacora_autorId_idx"           ON "EntradaBitacora" ("autorId");
 CREATE INDEX "SesionJuego_adultoMayorId_idx"         ON "SesionJuego" ("adultoMayorId");
+CREATE INDEX "SesionJuego_adultoMayorId_tipoJuego_idx" ON "SesionJuego" ("adultoMayorId", "tipoJuego");
 CREATE INDEX "AlertaSos_adultoMayorId_idx"           ON "AlertaSos" ("adultoMayorId");
 CREATE INDEX "AlertaSos_creadaPorId_idx"             ON "AlertaSos" ("creadaPorId");
 CREATE INDEX "AlertaSos_atendidaPorId_idx"           ON "AlertaSos" ("atendidaPorId");

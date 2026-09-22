@@ -80,10 +80,20 @@ const ICONOS = {
       <path d="M7 3v2M11 3v2" />
     </>
   ),
+  // comida / almuerzo: tenedor y cuchillo (sirve para cualquier comida)
   plate: (
     <>
-      <circle cx="12" cy="12" r="8.5" />
-      <circle cx="12" cy="12" r="4" />
+      <path d="M6 3v5a2 2 0 0 0 4 0V3" />
+      <path d="M8 3v18" />
+      <path d="M16 3v18" />
+      <path d="M16 3c-1.7 0-2.6 2.4-2.6 5.2 0 2.1 1 3.4 2.6 3.4" />
+    </>
+  ),
+  // once / pan: una hallulla / pan de molde
+  bread: (
+    <>
+      <path d="M4.5 11.5a4.5 4.5 0 0 1 4.5-4.5h6a4.5 4.5 0 0 1 4.5 4.5v.5H4.5v-.5z" />
+      <path d="M6.5 12v6a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-6" />
     </>
   ),
   phone: (
@@ -167,10 +177,10 @@ const ICONOS = {
       <path d="M20 4.5h-5a2 2 0 0 0-2 2V20a2 2 0 0 1 2-2h5V4.5z" />
     </>
   ),
-  // paseo / parque: árbol
+  // paseo / parque: árbol frondoso (copa redonda), no un pino
   tree: (
     <>
-      <path d="M12 3l5 7h-3l3 5H7l3-5H7l5-7z" />
+      <circle cx="12" cy="9" r="6" />
       <path d="M12 15v6" />
     </>
   ),
@@ -194,6 +204,13 @@ const ICONOS = {
   // trámite / banco
   bank: (
     <path d="M3 9.5l9-5.5 9 5.5M4.5 9.5h15M6 11v6M10 11v6M14 11v6M18 11v6M3.5 20h17" />
+  ),
+  // sopa de letras: una grilla
+  grid: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+    </>
   ),
   // peluquería: tijeras
   scissors: (

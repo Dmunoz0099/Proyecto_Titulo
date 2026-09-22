@@ -9,10 +9,14 @@ const enteroNoNegativo = z.coerce
   .int('Debe ser un número entero')
   .min(0, 'No puede ser negativo');
 
-// Registrar una sesión: puntaje, aciertos, errores y duración en segundos.
-// Todavía no guardo qué juego fue (solo existe Memorice); cuando haya más
-// juegos agrego una columna para diferenciarlos.
+// los juegos disponibles. Lo exporto para reutilizarlo al filtrar el listado.
+export const TIPOS_JUEGO = ['PALABRAS', 'SOPA_LETRAS'];
+
+// Registrar una sesión: qué juego fue, puntaje, aciertos, errores y duración.
+// tipoJuego trae default PALABRAS: si el juego viejo (Memorice) no lo manda,
+// igual queda bien clasificado y no rompe nada.
 export const esquemaSesion = z.object({
+  tipoJuego: z.enum(TIPOS_JUEGO).default('PALABRAS'),
   puntaje: enteroNoNegativo.max(100000, 'Puntaje fuera de rango'),
   aciertos: enteroNoNegativo.max(1000, 'Valor fuera de rango'),
   errores: enteroNoNegativo.max(10000, 'Valor fuera de rango'),

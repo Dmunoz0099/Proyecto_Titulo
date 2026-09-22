@@ -14,6 +14,7 @@ export async function registrarSesion(usuario, datos) {
   return prisma.sesionJuego.create({
     data: {
       fecha: new Date(),
+      tipoJuego: datos.tipoJuego, // ya viene con default 'PALABRAS' del validador
       puntaje: datos.puntaje,
       aciertos: datos.aciertos,
       errores: datos.errores,
@@ -25,11 +26,14 @@ export async function registrarSesion(usuario, datos) {
 
 // --- LISTAR sesiones del adulto mayor (para el seguimiento) ---
 // de la más nueva a la más vieja. Sirve para cualquier rol: el paciente ve su
-// propio progreso y el cuidador/familiar monitorean.
-export async function listarSesiones(usuario) {
+// propio progreso y el cuidador/familiar monitorean. Se puede filtrar por juego
+// pasando { tipoJuego }; si no viene, devuelve las de todos los juegos.
+export async function listarSesiones(usuario, { tipoJuego } = {}) {
   const adultoMayorId = await obtenerAdultoMayorId(usuario);
+  const where = { adultoMayorId };
+  if (tipoJuego) where.tipoJuego = tipoJuego;
   return prisma.sesionJuego.findMany({
-    where: { adultoMayorId },
+    where,
     orderBy: { fecha: 'desc' },
   });
 }
