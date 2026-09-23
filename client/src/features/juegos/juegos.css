@@ -171,13 +171,30 @@
 }
 
 /* --- SOPA DE LETRAS --- */
-.sopa-ayuda { text-align: center; font-size: var(--fs-body); margin-bottom: var(--sp-3); }
+.sopa-ayuda { text-align: center; font-size: var(--fs-body); margin-bottom: var(--sp-2); }
 
+/* marcadores más bajitos, para que el tablero suba y se vea sin deslizar */
+.mem-stats-compacto { margin-bottom: var(--sp-2); flex-wrap: wrap; gap: var(--sp-2); }
+.mem-stats-compacto .mem-stat { flex-direction: row; align-items: baseline; gap: 6px; min-width: 0; padding: 6px 12px; }
+.mem-stats-compacto .mem-stat-num { font-size: var(--fs-label); }
+
+/* dificultad / tema / reiniciar van debajo de todo, separados del juego */
+.sopa-opciones {
+  margin: var(--sp-5) 0 0;
+  padding-top: var(--sp-4);
+  border-top: 2px solid var(--line);
+}
+
+/* el tablero ocupa todo el ancho disponible y la letra escala con el tamaño de
+   la celda (no con la pantalla), así siempre llena la casilla aunque haya 10
+   columnas. --cols lo pone el componente según el nivel. */
 .sopa-board {
   display: grid;
+  grid-template-columns: repeat(var(--cols, 8), 1fr);
   gap: 6px;
-  max-width: 560px;
+  max-width: 680px;
   margin: 0 auto var(--sp-4);
+  container-type: inline-size;
 }
 .sopa-celda {
   aspect-ratio: 1 / 1;
@@ -189,7 +206,8 @@
   background: var(--surface);
   color: var(--ink);
   font-weight: 800;
-  font-size: clamp(15px, 4.4vw, 26px);
+  font-size: clamp(18px, calc(100cqi / var(--cols, 8) * 0.6), 44px);
+  line-height: 1;
   cursor: pointer;
   user-select: none;
   transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
@@ -222,7 +240,10 @@
 .sopa-palabra.is-ok { background: var(--ok-bg); color: var(--ok); text-decoration: line-through; }
 
 @media (max-width: 520px) {
-  .sopa-board { gap: 4px; }
+  /* en el teléfono le devuelvo al tablero el ancho que se come el padding */
+  .juego-card { padding: var(--sp-4) var(--sp-3); }
+  .sopa-board { gap: 3px; }
+  .sopa-celda { border-radius: 8px; }
 }
 
 /* --- SEGUIMIENTO (progreso) --- */

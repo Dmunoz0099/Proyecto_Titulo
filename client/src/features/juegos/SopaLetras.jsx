@@ -5,7 +5,7 @@
 // solo informativo). Cuando encuentra todas las palabras avisa al padre con el
 // resultado para guardarlo como SesionJuego (tipoJuego = SOPA_LETRAS).
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../../components/ui/Icon.jsx';
 
 // bancos de palabras por tema. Todas en MAYÚSCULAS, sin tildes ni Ñ, cortas y
@@ -35,7 +35,7 @@ const TEMA_OPCIONES = [
 // niveles: tamaño del tablero, cuántas palabras, largo máximo y direcciones.
 // Empieza chico y suave (solo horizontal y vertical); el difícil suma diagonal.
 const NIVELES = [
-  { id: 'facil', label: 'Fácil', size: 8, cantidad: 5, maxLargo: 4, diagonales: false },
+  { id: 'facil', label: 'Fácil', size: 7, cantidad: 5, maxLargo: 4, diagonales: false },
   { id: 'normal', label: 'Normal', size: 10, cantidad: 6, maxLargo: 6, diagonales: false },
   { id: 'dificil', label: 'Difícil', size: 10, cantidad: 8, maxLargo: 6, diagonales: true },
 ];
@@ -200,6 +200,14 @@ export function SopaLetras({ onTerminar }) {
 
   const totalPalabras = juego.solucion.length;
 
+  // al abrir el juego bajo la pantalla sola hasta la tarjeta, para que el
+  // tablero quede a la vista sin tener que deslizar el dedo.
+  const raiz = useRef(null);
+  useEffect(() => {
+    const card = raiz.current?.closest('.juego-card') ?? raiz.current;
+    card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
   // (re)inicia la partida. Puedo cambiar nivel y/o tema; lo que no paso, se queda.
   function reiniciar({ nivel: nv = nivel, tema: tm = tema } = {}) {
     const n = NIVELES.find((x) => x.id === nv);
@@ -311,9 +319,68 @@ export function SopaLetras({ onTerminar }) {
   const enSeleccion = new Set(seleccion.map(({ r, c }) => `${r},${c}`));
 
   return (
-    <div className="sopa">
-      {/* barra de control: dificultad + tema + reiniciar (igual que el Memorice) */}
-      <div className="mem-toolbar">
+    <div className="sopa" ref={raiz}>
+      {/* marcadores en una línea chica (sin presión: el tiempo es solo informativo) */}
+      <div className="mem-stats mem-stats-compacto">
+        <div className="mem-stat">
+          <span className="mem-stat-num">{encontradas.size}/{totalPalabras}</span>
+          <span className="mem-stat-lab">Palabras</span>
+        </div>
+        <div className="mem-stat">
+          <span className="mem-stat-num">{errores}</span>
+          <span className="mem-stat-lab">Errores</span>
+        </div>
+        <div className="mem-stat">
+          <span className="mem-stat-num">{mmss(transcurrido)}</span>
+          <span className="mem-stat-lab">Tiempo</span>
+        </div>
+      </div>
+
+      <p className="sopa-ayuda muted">
+        Toca las letras de cada palabra, una por una (o toca la primera y la última).
+      </p>
+
+      {/* el tablero */}
+      <div
+        className="sopa-board"
+        style={{ '--cols': juego.size }}
+      >
+        {juego.grid.map((fila, r) =>
+          fila.map((letra, c) => {
+            const ok = celdasOk.has(`${r},${c}`);
+            const activa = enSeleccion.has(`${r},${c}`);
+            return (
+              <button
+                key={`${r}-${c}`}
+                type="button"
+                className={`sopa-celda ${ok ? 'is-ok' : ''} ${activa ? 'is-activa' : ''}`}
+                onClick={() => tocarCelda(r, c)}
+                disabled={ganado}
+                aria-label={`Letra ${letra}`}
+              >
+                {letra}
+              </button>
+            );
+          })
+        )}
+      </div>
+
+      {/* lista de palabras a buscar */}
+      <div className="sopa-lista">
+        {palabrasOrdenadas.map((s) => {
+          const hecha = encontradas.has(s.palabra);
+          return (
+            <span key={s.palabra} className={`sopa-palabra ${hecha ? 'is-ok' : ''}`}>
+              {hecha && <Icon name="check" size={18} stroke={2.5} />}
+              {s.palabra}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* opciones al final: se eligen una vez, así que no le quitan espacio al
+          tablero, que es lo que se usa todo el rato */}
+      <div className="mem-toolbar sopa-opciones">
         <div className="mem-group">
           <span className="mem-group-lab">Dificultad</span>
           <div className="mem-chips" role="group" aria-label="Dificultad">
@@ -349,64 +416,6 @@ export function SopaLetras({ onTerminar }) {
         <button type="button" className="btn btn-ghost mem-reiniciar" onClick={() => reiniciar()}>
           <Icon name="history" size={22} /> Reiniciar
         </button>
-      </div>
-
-      {/* marcadores (sin presión: el tiempo es solo informativo) */}
-      <div className="mem-stats">
-        <div className="mem-stat">
-          <span className="mem-stat-num">{encontradas.size}/{totalPalabras}</span>
-          <span className="mem-stat-lab">Palabras</span>
-        </div>
-        <div className="mem-stat">
-          <span className="mem-stat-num">{errores}</span>
-          <span className="mem-stat-lab">Errores</span>
-        </div>
-        <div className="mem-stat">
-          <span className="mem-stat-num">{mmss(transcurrido)}</span>
-          <span className="mem-stat-lab">Tiempo</span>
-        </div>
-      </div>
-
-      <p className="sopa-ayuda muted">
-        Toca las letras de cada palabra, una por una (o toca la primera y la última).
-      </p>
-
-      {/* el tablero */}
-      <div
-        className="sopa-board"
-        style={{ gridTemplateColumns: `repeat(${juego.size}, 1fr)` }}
-      >
-        {juego.grid.map((fila, r) =>
-          fila.map((letra, c) => {
-            const ok = celdasOk.has(`${r},${c}`);
-            const activa = enSeleccion.has(`${r},${c}`);
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                className={`sopa-celda ${ok ? 'is-ok' : ''} ${activa ? 'is-activa' : ''}`}
-                onClick={() => tocarCelda(r, c)}
-                disabled={ganado}
-                aria-label={`Letra ${letra}`}
-              >
-                {letra}
-              </button>
-            );
-          })
-        )}
-      </div>
-
-      {/* lista de palabras a buscar */}
-      <div className="sopa-lista">
-        {palabrasOrdenadas.map((s) => {
-          const hecha = encontradas.has(s.palabra);
-          return (
-            <span key={s.palabra} className={`sopa-palabra ${hecha ? 'is-ok' : ''}`}>
-              {hecha && <Icon name="check" size={18} stroke={2.5} />}
-              {s.palabra}
-            </span>
-          );
-        })}
       </div>
 
       {/* panel de victoria */}

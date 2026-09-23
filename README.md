@@ -98,8 +98,10 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
 - **Juegos** (dos, con selección previa): **Memorice** (parejas de emojis por temas
   —frutas, autos, objetos, variado— y 3 niveles, sin presión de tiempo; la victoria
   solo se declara cuando la última carta está dada vuelta) y **Sopa de letras**
-  (tablero 8×8/10×10 con palabras cortas en español por tema —animales, frutas, casa,
-  variado—, se marca cada palabra tocando su primera y última letra). Cada partida se
+  (tablero 7×7 en fácil y 10×10 en normal/difícil, con palabras cortas en español por
+  tema —animales, frutas, casa, variado—; se marca cada palabra letra por letra o
+  tocando su primera y última letra; el tablero va arriba y las opciones de dificultad
+  y tema al final, para no tener que deslizar hasta el juego). Cada partida se
   guarda como sesión (con su `tipoJuego`) y alimenta la pantalla de **Seguimiento**,
   que permite **filtrar por juego** (progreso partida a partida).
 - **Campana de recordatorios** (paciente): avisa de tomas olvidadas (hora pasada sin
