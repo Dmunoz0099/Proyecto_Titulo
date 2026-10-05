@@ -1,11 +1,11 @@
 // Familia.jsx -> el módulo "Familia": la red de apoyo del adulto mayor. Se
 // diferencia por rol:
 //   - FAMILIAR: es el rol estable de la red (la persona cuidadora puede renunciar
-//     o faltar). Por eso GESTIONA: crea la cuenta con la que entra el adulto mayor,
-//     cambia su PIN, comparte el código para sumar gente y puede desvincular a
-//     alguien de la red.
-//   - CUIDADOR: la ve en SOLO LECTURA (por ahora): los datos del adulto mayor, con
-//     quién está conectado y el código para copiar.
+//     o faltar). Por eso la ADMINISTRA: crea la cuenta con la que entra el adulto
+//     mayor y cambia su PIN, crea la cuenta de la persona cuidadora (o le pasa el
+//     código) y puede desvincular a alguien de la red.
+//   - CUIDADOR: la ve en SOLO LECTURA: los datos del adulto mayor, con quién está
+//     conectado y el código para copiar.
 
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
@@ -13,6 +13,7 @@ import { AppBar } from '../components/layout/AppBar.jsx';
 import { Icon } from '../components/ui/Icon.jsx';
 import { DialogoConfirmar } from '../components/ui/DialogoConfirmar.jsx';
 import { CuentaAdultoMayor } from '../features/vinculacion/CuentaAdultoMayor.jsx';
+import { CuentaCuidador } from '../features/vinculacion/CuentaCuidador.jsx';
 import { obtenerRedApoyo, desvincularMiembro } from '../api/vinculacion.js';
 import { useRecurso } from '../api/cache.js';
 import './Familia.css';
@@ -96,7 +97,7 @@ function Familia() {
           <h1 className="t-h1">Familia</h1>
           <p className="fam-sub muted">
             {esFamiliar
-              ? `La red de apoyo de ${adultoMayor?.nombre?.split(' ')[0] || 'la persona que acompañas'}: administra su cuenta, invita gente y revisa quién está conectado.`
+              ? `La red de apoyo de ${adultoMayor?.nombre?.split(' ')[0] || 'la persona que acompañas'}: administra su cuenta, suma a la persona cuidadora y revisa quién está conectado.`
               : `La red de apoyo de ${adultoMayor?.nombre?.split(' ')[0] || 'la persona que cuidas'}: quiénes están conectados a su cuidado.`}
           </p>
         </div>
@@ -200,13 +201,30 @@ function Familia() {
               </>
             )}
 
-            {/* código de invitación: para sumar a una nueva persona cuidadora
-                (si la anterior renuncia) o a otro familiar */}
+            {/* cuenta de la persona cuidadora: el familiar se la crea directo
+                (la otra opción es pasarle el código de más abajo) */}
+            {esFamiliar && (
+              <>
+                <h2 className="fam-titulo fam-titulo-sep">Persona cuidadora</h2>
+                <div className="card fam-codigo-card">
+                  <p className="fam-codigo-texto">
+                    Créale una cuenta a la persona cuidadora y entrégale su usuario y
+                    contraseña. Entrará directo al cuidado de{' '}
+                    {adultoMayor?.nombre?.split(' ')[0] || 'tu familiar'}. Si cambia
+                    de cuidadora, quita a la anterior de la lista y crea una nueva.
+                  </p>
+                  <CuentaCuidador onCreada={() => refrescar()} />
+                </div>
+              </>
+            )}
+
+            {/* código de invitación: para quien prefiera registrarse por su cuenta
+                (otra cuidadora u otro familiar) */}
             <h2 className="fam-titulo fam-titulo-sep">Sumar a alguien más</h2>
             <div className="card fam-codigo-card">
               <p className="fam-codigo-texto">
                 {esFamiliar
-                  ? 'Comparte este código para conectar a una nueva persona cuidadora (si la anterior renuncia) o a otro familiar. Quien lo reciba crea su cuenta y lo ingresa.'
+                  ? 'También puedes compartir este código: quien lo reciba (una persona cuidadora u otro familiar) crea su cuenta y lo ingresa.'
                   : 'Este es el código con el que la familia conecta a más personas al cuidado del adulto mayor.'}
               </p>
               {codigo ? (
@@ -220,8 +238,8 @@ function Familia() {
 
             <p className="fam-nota muted">
               {esFamiliar
-                ? 'La rutina del día (medicamentos, agenda) la gestiona la persona cuidadora desde sus módulos.'
-                : 'Esta vista es solo de lectura. La cuenta del adulto mayor y los accesos los administra la familia.'}
+                ? 'Los medicamentos, la agenda y el calendario los pueden gestionar tú y la persona cuidadora desde sus módulos.'
+                : 'Esta vista es solo de lectura. Las cuentas y los accesos los administra la familia.'}
             </p>
           </>
         )}

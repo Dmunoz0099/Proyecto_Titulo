@@ -1,5 +1,5 @@
 // vinculacion.validator.js -> esquemas Zod para vincular una cuenta a un adulto
-// mayor: crear al adulto mayor (lo hace el cuidador) o unirse con un código.
+// mayor: crear al adulto mayor (lo hace el familiar) o unirse con un código.
 
 import { z } from 'zod';
 import { nombreUsuario } from './auth.validator.js';
@@ -29,7 +29,7 @@ export const esquemaCrearPaciente = z.object({
   ),
 });
 
-// Unirse a un adulto mayor existente con el código que dio el cuidador.
+// Unirse a un adulto mayor existente con el código que dio la familia.
 export const esquemaUnir = z.object({
   codigo: z
     .string({ required_error: 'El código es obligatorio' })
@@ -44,8 +44,8 @@ const pin = z
   .string({ required_error: 'El PIN es obligatorio' })
   .regex(/^\d{4}$/, 'El PIN debe ser de 4 números');
 
-// El cuidador crea la cuenta del paciente (adulto mayor). No se le pide correo
-// (no siempre tienen) y la clave es un PIN de 4 números que elige el cuidador y
+// El familiar crea la cuenta del paciente (adulto mayor). No se le pide correo
+// (no siempre tienen) y la clave es un PIN de 4 números que elige el familiar y
 // le dicta/entrega al paciente.
 export const esquemaCuentaPaciente = z.object({
   nombre: z
@@ -59,5 +59,20 @@ export const esquemaCuentaPaciente = z.object({
   password: pin,
 });
 
-// Cambiar el PIN del paciente (lo hace el cuidador).
+// Cambiar el PIN del paciente (lo hace el familiar).
 export const esquemaPin = z.object({ pin });
+
+// El familiar crea la cuenta de la persona cuidadora. Misma regla de contraseña
+// que el registro normal (mínimo 6); el correo no se pide, se puede agregar después.
+export const esquemaCuentaCuidador = z.object({
+  nombre: z
+    .string({ required_error: 'El nombre es obligatorio' })
+    .trim()
+    .min(1, 'Escribe el nombre de la persona cuidadora'),
+
+  nombreUsuario,
+
+  password: z
+    .string({ required_error: 'La contraseña es obligatoria' })
+    .min(6, 'La contraseña debe tener al menos 6 caracteres'),
+});

@@ -1,6 +1,7 @@
 // vinculacion.routes.js -> endpoints para asociar la cuenta a un adulto mayor.
-// Todas piden sesión. Crear al adulto mayor lo hace SOLO el cuidador; unirse por
-// código lo puede hacer cualquier rol (familiar, paciente o un segundo cuidador).
+// Todas piden sesión. El FAMILIAR es quien administra: crea al adulto mayor, crea
+// las cuentas del paciente y de la persona cuidadora, y maneja los accesos.
+// Unirse por código lo puede hacer cualquier rol (cuidador, otro familiar...).
 
 import { Router } from 'express';
 import * as vinculacionController from '../controllers/vinculacion.controller.js';
@@ -11,6 +12,7 @@ import {
   esquemaCrearPaciente,
   esquemaUnir,
   esquemaCuentaPaciente,
+  esquemaCuentaCuidador,
   esquemaPin,
 } from '../validators/vinculacion.validator.js';
 
@@ -26,18 +28,18 @@ router.get('/estado', vinculacionController.estado);
 router.get('/red', vinculacionController.redApoyo);
 
 // quitar a una persona de la red de apoyo (p. ej. cuidador que renuncia).
-// Lo pueden hacer el CUIDADOR o el FAMILIAR; el service protege al paciente y
-// evita que alguien se quite a sí mismo.
+// Solo el FAMILIAR; el service protege al paciente y evita que alguien se quite
+// a sí mismo.
 router.delete(
   '/miembro/:id',
-  autorizar('CUIDADOR', 'FAMILIAR'),
+  autorizar('FAMILIAR'),
   vinculacionController.desvincular
 );
 
-// el cuidador crea al adulto mayor y obtiene un código para compartir
+// el familiar crea al adulto mayor y obtiene un código para compartir
 router.post(
   '/paciente',
-  autorizar('CUIDADOR'),
+  autorizar('FAMILIAR'),
   validar(esquemaCrearPaciente),
   vinculacionController.crearPaciente
 );
@@ -45,12 +47,11 @@ router.post(
 // cualquiera sin vincular se une con el código
 router.post('/unir', validar(esquemaUnir), vinculacionController.unir);
 
-// crea la cuenta del paciente (usuario + PIN de 4 números, sin correo). Ahora la
-// gestiona el FAMILIAR (rol estable de la red); se deja también al CUIDADOR para
-// no bloquear cuentas antiguas donde él la creó.
+// crea la cuenta del paciente (usuario + PIN de 4 números, sin correo). Solo el
+// FAMILIAR, que es el rol estable de la red.
 router.post(
   '/cuenta-paciente',
-  autorizar('CUIDADOR', 'FAMILIAR'),
+  autorizar('FAMILIAR'),
   validar(esquemaCuentaPaciente),
   vinculacionController.crearCuentaPaciente
 );
@@ -58,9 +59,18 @@ router.post(
 // cambia el PIN del paciente (si lo olvidó, etc.) — mismo criterio de roles.
 router.post(
   '/pin-paciente',
-  autorizar('CUIDADOR', 'FAMILIAR'),
+  autorizar('FAMILIAR'),
   validar(esquemaPin),
   vinculacionController.cambiarPinPaciente
+);
+
+// el familiar le crea la cuenta a la persona cuidadora (queda ya vinculada).
+// Es la otra opción a pasarle el código para que se registre ella misma.
+router.post(
+  '/cuenta-cuidador',
+  autorizar('FAMILIAR'),
+  validar(esquemaCuentaCuidador),
+  vinculacionController.crearCuentaCuidador
 );
 
 export default router;

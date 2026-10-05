@@ -16,14 +16,14 @@ export async function obtenerRedApoyo() {
   return data;
 }
 
-// quita a una persona de la red de apoyo (cuidador que renuncia, etc.).
-// Devuelve { ok, id, nombre }. El backend valida permisos y protege al paciente.
+// el familiar quita a una persona de la red de apoyo (cuidador que renuncia,
+// etc.). Devuelve { ok, id, nombre }. El backend valida permisos y protege al paciente.
 export async function desvincularMiembro(id) {
   const { data } = await api.delete(`/vinculacion/miembro/${id}`);
   return data;
 }
 
-// el cuidador crea al adulto mayor. Devuelve { usuario, token, adultoMayor, codigo }.
+// el familiar crea al adulto mayor. Devuelve { usuario, token, adultoMayor, codigo }.
 export async function crearPaciente(datos) {
   const { data } = await api.post('/vinculacion/paciente', datos);
   return data;
@@ -35,15 +35,22 @@ export async function unirConCodigo(codigo) {
   return data;
 }
 
-// el cuidador crea la cuenta del paciente (usuario + PIN de 4 números, sin correo).
-// Devuelve { usuario } (el cuidador NO cambia de sesión).
+// el familiar crea la cuenta del paciente (usuario + PIN de 4 números, sin correo).
+// Devuelve { usuario } (el familiar NO cambia de sesión).
 export async function crearCuentaPaciente(datos) {
   const { data } = await api.post('/vinculacion/cuenta-paciente', datos);
   return data;
 }
 
-// el cuidador cambia el PIN del paciente. Devuelve { ok, nombreUsuario }.
+// el familiar cambia el PIN del paciente. Devuelve { ok, nombreUsuario }.
 export async function cambiarPinPaciente(pin) {
   const { data } = await api.post('/vinculacion/pin-paciente', { pin });
+  return data;
+}
+
+// el familiar crea la cuenta de la persona cuidadora (nombre, usuario y
+// contraseña); queda ya vinculada. Devuelve { usuario }.
+export async function crearCuentaCuidador(datos) {
+  const { data } = await api.post('/vinculacion/cuenta-cuidador', datos);
   return data;
 }

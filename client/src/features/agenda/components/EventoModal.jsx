@@ -1,5 +1,5 @@
 // EventoModal.jsx -> el diálogo para crear o editar una actividad de la agenda.
-// Solo lo usa el CUIDADOR. Elige hora, título, detalle e icono.
+// Lo usan el CUIDADOR y el FAMILIAR. Elige hora, título, detalle e icono.
 
 import { useState } from 'react';
 import { Icon } from '../../../components/ui/Icon.jsx';

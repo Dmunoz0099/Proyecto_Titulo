@@ -3,9 +3,9 @@
 // vía api/agenda.js.
 //  - Vista PACIENTE: "El día de hoy" en grande, por hora, con icono y título.
 //    Resalta la actividad en curso.
-//  - Vista CUIDADOR: gestiona las actividades (crear/editar/eliminar) y puede
+//  - Vista de gestión (CUIDADOR y FAMILIAR): crear/editar/eliminar actividades y
 //    previsualizar la vista del paciente con el selector.
-// El rol manda: PACIENTE y FAMILIAR solo ven la vista grande; el CUIDADOR ve el selector.
+// El rol manda: el PACIENTE solo ve la vista grande; cuidador y familiar ven el selector.
 
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -135,11 +135,11 @@ function CaregiverView({ eventos, onNuevo, onEditar, onEliminar }) {
 /* la página */
 function AgendaPage() {
   const { usuario } = useAuth();
-  const esCuidador = usuario.rol === 'CUIDADOR';
+  const puedeGestionar = usuario.rol === 'CUIDADOR' || usuario.rol === 'FAMILIAR';
 
-  // el cuidador puede alternar entre gestionar y previsualizar; los demás roles
-  // ven directo la vista del paciente
-  const [view, setView] = useState(esCuidador ? 'cuidador' : 'paciente');
+  // cuidador y familiar pueden alternar entre gestionar y previsualizar; el
+  // paciente ve directo su vista
+  const [view, setView] = useState(puedeGestionar ? 'cuidador' : 'paciente');
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [modal, setModal] = useState(null); // null | {} (nuevo) | evento (editando)
@@ -204,15 +204,15 @@ function AgendaPage() {
           </div>
         )}
 
-        {/* el selector de vistas solo lo ve el cuidador */}
-        {esCuidador && (
+        {/* el selector de vistas solo lo ven quienes gestionan */}
+        {puedeGestionar && (
           <div className="row" style={{ justifyContent: 'center', marginBottom: 'var(--sp-5)' }}>
             <div className="viewtoggle" role="group" aria-label="Cambiar vista">
               <button aria-pressed={view === 'paciente'} onClick={() => setView('paciente')}>
                 <Icon name="user" size={22} /> Vista paciente
               </button>
               <button aria-pressed={view === 'cuidador'} onClick={() => setView('cuidador')}>
-                <Icon name="users" size={22} /> Vista cuidador
+                <Icon name="users" size={22} /> Gestionar
               </button>
             </div>
           </div>
@@ -220,7 +220,7 @@ function AgendaPage() {
 
         {cargando ? (
           <p className="t-lg muted">Cargando agenda…</p>
-        ) : esCuidador && view === 'cuidador' ? (
+        ) : puedeGestionar && view === 'cuidador' ? (
           <CaregiverView
             eventos={eventos}
             onNuevo={() => setModal({})}

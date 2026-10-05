@@ -9,19 +9,19 @@ export async function listarMedicamentos() {
   return data;
 }
 
-// crear (solo CUIDADOR). Devuelve el creado.
+// crear (CUIDADOR o FAMILIAR). Devuelve el creado.
 export async function crearMedicamento(datos) {
   const { data } = await api.post('/medicamentos', datos);
   return data;
 }
 
-// actualizar (solo CUIDADOR). Devuelve el actualizado.
+// actualizar (CUIDADOR o FAMILIAR). Devuelve el actualizado.
 export async function actualizarMedicamento(id, datos) {
   const { data } = await api.put(`/medicamentos/${id}`, datos);
   return data;
 }
 
-// eliminar (borrado lógico, solo CUIDADOR)
+// eliminar (borrado lógico, CUIDADOR o FAMILIAR)
 export async function eliminarMedicamento(id) {
   await api.delete(`/medicamentos/${id}`);
 }

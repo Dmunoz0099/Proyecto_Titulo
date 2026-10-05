@@ -1,7 +1,7 @@
 // medicamento.routes.js -> endpoints de medicamentos.
 // Orden de middlewares: autenticar -> (autorizar) -> validar -> controlador.
 // Permisos: listar/registrar toma/historial lo hace cualquiera con sesión;
-// crear/editar/eliminar solo el CUIDADOR.
+// crear/editar/eliminar el CUIDADOR o el FAMILIAR.
 
 import { Router } from 'express';
 import * as medicamentoController from '../controllers/medicamento.controller.js';
@@ -25,24 +25,24 @@ router.get('/', medicamentoController.listar);
 // Ojo: va antes de "/:id/tomas" porque es una ruta literal distinta.
 router.get('/tomas', medicamentoController.listarTomas);
 
-// crear (solo CUIDADOR)
+// crear (CUIDADOR o FAMILIAR)
 router.post(
   '/',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaMedicamento),
   medicamentoController.crear
 );
 
-// actualizar (solo CUIDADOR)
+// actualizar (CUIDADOR o FAMILIAR)
 router.put(
   '/:id',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaMedicamento),
   medicamentoController.actualizar
 );
 
-// borrado lógico (solo CUIDADOR)
-router.delete('/:id', autorizar('CUIDADOR'), medicamentoController.eliminar);
+// borrado lógico (CUIDADOR o FAMILIAR)
+router.delete('/:id', autorizar('CUIDADOR', 'FAMILIAR'), medicamentoController.eliminar);
 
 // registrar una toma
 router.post(

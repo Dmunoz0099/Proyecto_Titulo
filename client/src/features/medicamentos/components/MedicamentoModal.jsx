@@ -1,5 +1,5 @@
 // MedicamentoModal.jsx -> el diálogo para crear o editar un medicamento (solo
-// CUIDADOR). Copia del modal del prototipo "Medicamentos.html": nombre, dosis,
+// CUIDADOR o FAMILIAR). Copia del modal del prototipo "Medicamentos.html": nombre, dosis,
 // horarios por "chips" e indicaciones. Si edita, también deja eliminar. El horario
 // se guarda como texto unido por " · " (el backend lo guarda tal cual).
 

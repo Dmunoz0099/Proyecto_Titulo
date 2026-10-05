@@ -3,16 +3,15 @@
 // "huérfano" y pueda ver/cargar datos.
 //
 // Se ramifica por rol:
-//   - CUIDADOR: crea al adulto mayor que va a cuidar y recibe un código para
-//     compartir con la familia y el paciente.
-//   - FAMILIAR / PACIENTE: ingresan ese código y quedan asociados al mismo
-//     adulto mayor (sin duplicarlo).
+//   - FAMILIAR: crea al adulto mayor y recibe un código para sumar a la persona
+//     cuidadora (o a otro familiar).
+//   - CUIDADOR (u otro rol sin vínculo): ingresa ese código y queda asociado al
+//     mismo adulto mayor (sin duplicarlo).
 //
-// También sirve de "re-ver el código": si un cuidador YA vinculado entra acá,
-// le muestro el código en solo lectura. La gestión de la cuenta del adulto mayor
-// (crear usuario / PIN) y de los accesos se hace ahora desde el módulo "Familia"
-// del FAMILIAR (rol estable de la red). Un familiar/paciente ya vinculado no tiene
-// nada que hacer acá -> al inicio.
+// También sirve de "re-ver el código": si un familiar YA vinculado entra acá, le
+// muestro el código en solo lectura. Las cuentas del adulto mayor y de la
+// cuidadora, y los accesos, se manejan desde el módulo "Familia". Un cuidador ya
+// vinculado no tiene nada que hacer acá -> al inicio.
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +28,7 @@ import './Vincular.css';
 function Vincular() {
   const { usuario, aplicarVinculo } = useAuth();
   const navigate = useNavigate();
-  const esCuidador = usuario?.rol === 'CUIDADOR';
+  const esFamiliar = usuario?.rol === 'FAMILIAR';
 
   // estado de vínculo según el backend (null = todavía cargando)
   const [estado, setEstado] = useState(null);
@@ -40,19 +39,19 @@ function Vincular() {
       .catch(() => setEstado({ vinculado: false }));
   }, []);
 
-  // si ya está vinculado y NO es cuidador, no hay nada que hacer acá
+  // si ya está vinculado y NO es familiar, no hay nada que hacer acá
   useEffect(() => {
-    if (estado?.vinculado && !esCuidador) navigate('/', { replace: true });
-  }, [estado, esCuidador, navigate]);
+    if (estado?.vinculado && !esFamiliar) navigate('/', { replace: true });
+  }, [estado, esFamiliar, navigate]);
 
   // subtítulo del panel según el momento
   let subtitulo;
-  if (estado?.vinculado && esCuidador) {
-    subtitulo = 'Comparte este código para conectar a la familia y al paciente.';
-  } else if (esCuidador) {
-    subtitulo = 'Cuéntanos a quién vas a cuidar para preparar su espacio.';
+  if (estado?.vinculado && esFamiliar) {
+    subtitulo = 'Comparte este código para sumar a la persona cuidadora.';
+  } else if (esFamiliar) {
+    subtitulo = 'Cuéntanos a quién van a cuidar para preparar su espacio.';
   } else {
-    subtitulo = 'Conéctate con tu familiar usando el código que te compartieron.';
+    subtitulo = 'Conéctate usando el código que te compartió la familia.';
   }
 
   return (
@@ -88,10 +87,10 @@ function Vincular() {
             <CabeceraMovil />
             <p className="form-sub">Cargando…</p>
           </div>
-        ) : estado.vinculado && esCuidador ? (
+        ) : estado.vinculado && esFamiliar ? (
           <VerCodigo estado={estado} navigate={navigate} />
-        ) : esCuidador ? (
-          <FormularioCuidador aplicarVinculo={aplicarVinculo} navigate={navigate} />
+        ) : esFamiliar ? (
+          <FormularioFamiliar aplicarVinculo={aplicarVinculo} navigate={navigate} />
         ) : (
           <FormularioCodigo aplicarVinculo={aplicarVinculo} navigate={navigate} />
         )}
@@ -100,9 +99,8 @@ function Vincular() {
   );
 }
 
-// --- cuidador YA vinculado: vista de SOLO LECTURA con el código para compartir.
-//     La cuenta del adulto mayor y los accesos los administra el FAMILIAR desde
-//     el módulo "Familia" ---
+// --- familiar YA vinculado: el código para compartir. Las cuentas y los
+//     accesos se administran desde el módulo "Familia" ---
 function VerCodigo({ estado, navigate }) {
   return (
     <div className="card">
@@ -110,9 +108,9 @@ function VerCodigo({ estado, navigate }) {
       <h1 className="form-title">Tu código</h1>
       <p className="form-sub">
         Este es el código de{' '}
-        {estado.adultoMayor?.nombre?.split(' ')[0] || 'la persona que cuidas'}.
-        Compártelo con la familia para que se conecten; ellos administran la cuenta
-        y los accesos.
+        {estado.adultoMayor?.nombre?.split(' ')[0] || 'tu familiar'}.
+        Compártelo con la persona cuidadora para que se conecte. Desde “Familia”
+        también puedes crearle la cuenta directamente.
       </p>
 
       {estado.codigo ? (
@@ -135,8 +133,8 @@ function VerCodigo({ estado, navigate }) {
   );
 }
 
-// --- CUIDADOR sin vincular: crea al adulto mayor y luego ve el código ---
-function FormularioCuidador({ aplicarVinculo, navigate }) {
+// --- FAMILIAR sin vincular: crea al adulto mayor y luego ve el código ---
+function FormularioFamiliar({ aplicarVinculo, navigate }) {
   const [nombre, setNombre] = useState('');
   const [fechaNacimiento, setFechaNacimiento] = useState('');
   const [notas, setNotas] = useState('');
@@ -186,15 +184,15 @@ function FormularioCuidador({ aplicarVinculo, navigate }) {
         <h1 className="form-title">¡Todo listo!</h1>
         <p className="form-sub">
           Ya preparamos el espacio de <strong>{creado.nombre}</strong>. Comparte
-          este código con la familia y con {creado.nombre.split(' ')[0]} para que
-          se conecten a la misma cuenta.
+          este código con la persona cuidadora para que se conecte a la misma
+          cuenta.
         </p>
 
         <CodigoDestacado codigo={creado.codigo} />
 
         <p className="field-note" style={{ marginTop: 16 }}>
-          Puedes volver a ver este código cuando quieras desde “Familia”, en el
-          inicio.
+          En “Familia”, en el inicio, puedes volver a ver este código, crear la
+          cuenta de {creado.nombre.split(' ')[0]} y la de la persona cuidadora.
         </p>
 
         <button
@@ -211,10 +209,10 @@ function FormularioCuidador({ aplicarVinculo, navigate }) {
   return (
     <div className="card">
       <CabeceraMovil />
-      <h1 className="form-title">¿A quién vas a cuidar?</h1>
+      <h1 className="form-title">¿A quién van a cuidar?</h1>
       <p className="form-sub">
-        Con estos datos creamos el espacio del adulto mayor. Luego podrás cargar
-        sus remedios, su agenda y más.
+        Con estos datos creamos el espacio del adulto mayor. Luego podrás sumar a
+        la persona cuidadora y cargar sus remedios, su agenda y más.
       </p>
 
       {error && (
@@ -295,7 +293,7 @@ function FormularioCuidador({ aplicarVinculo, navigate }) {
   );
 }
 
-// --- FAMILIAR / PACIENTE: ingresan el código que les dio el cuidador ---
+// --- CUIDADOR (u otro rol sin vínculo): ingresa el código que le dio la familia ---
 function FormularioCodigo({ aplicarVinculo, navigate }) {
   const [codigo, setCodigo] = useState('');
   const [touched, setTouched] = useState(false);
@@ -330,9 +328,9 @@ function FormularioCodigo({ aplicarVinculo, navigate }) {
   return (
     <div className="card">
       <CabeceraMovil />
-      <h1 className="form-title">Conéctate con tu familiar</h1>
+      <h1 className="form-title">Conéctate con la familia</h1>
       <p className="form-sub">
-        Escribe el código de invitación que te compartió la persona cuidadora.
+        Escribe el código de invitación que te compartió la familia.
         Se ve así: <strong>CM-7K3QP</strong>.
       </p>
 

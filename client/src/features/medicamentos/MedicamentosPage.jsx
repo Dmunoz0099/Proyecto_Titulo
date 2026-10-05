@@ -4,10 +4,10 @@
 // Pestañas:
 //  - HOY: las tomas del día (armadas a partir del horario de cada remedio).
 //    "Marcar como dada" registra un RegistroMedicamento.
-//  - REMEDIOS: la lista; el CUIDADOR puede añadir, editar y eliminar.
+//  - REMEDIOS: la lista; el CUIDADOR y el FAMILIAR pueden añadir, editar y eliminar.
 //  - HISTORIAL: todas las tomas registradas, agrupadas por día.
-// Permisos: añadir/editar/eliminar solo CUIDADOR; marcar toma el CUIDADOR o el
-// PACIENTE; el FAMILIAR solo consulta.
+// Permisos: añadir/editar/eliminar el CUIDADOR o el FAMILIAR; marcar la toma el
+// CUIDADOR o el PACIENTE (el familiar no está ahí cuando se da el remedio).
 
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -148,12 +148,12 @@ function TodayTab({ medicamentos, tomasHoy, toneDe, puedeMarcar, esPaciente, mar
 }
 
 /* pestaña REMEDIOS */
-function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onEliminar, onAgregar }) {
+function MedsTab({ medicamentos, toneDe, puedeGestionar, onEditar, onEliminar, onAgregar }) {
   if (medicamentos.length === 0) {
     return (
       <div className="card empty t-lg">
         Todavía no hay medicamentos.
-        {esCuidador && ' Usa “Añadir medicamento” para registrar el primero.'}
+        {puedeGestionar && ' Usa “Añadir medicamento” para registrar el primero.'}
       </div>
     );
   }
@@ -173,7 +173,7 @@ function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onEliminar, onAgr
               )}
             </div>
           </div>
-          {esCuidador && (
+          {puedeGestionar && (
             <div className="acts">
               <button className="icon-btn" aria-label={`Editar ${m.nombre}`} onClick={() => onEditar(m)}>
                 <Icon name="edit" size={22} />
@@ -185,7 +185,7 @@ function MedsTab({ medicamentos, toneDe, esCuidador, onEditar, onEliminar, onAgr
           )}
         </div>
       ))}
-      {esCuidador && (
+      {puedeGestionar && (
         <button
           className="btn btn-primary btn-lg btn-block"
           style={{ marginTop: 'var(--sp-2)' }}
@@ -260,7 +260,7 @@ function HistoryTab({ medicamentos, tomas, toneDe }) {
 /* la página */
 function MedicamentosPage() {
   const { usuario } = useAuth();
-  const esCuidador = usuario.rol === 'CUIDADOR';
+  const puedeGestionar = usuario.rol === 'CUIDADOR' || usuario.rol === 'FAMILIAR';
   const esPaciente = usuario.rol === 'PACIENTE';
   const puedeMarcar = usuario.rol === 'CUIDADOR' || usuario.rol === 'PACIENTE';
 
@@ -387,7 +387,7 @@ function MedicamentosPage() {
             <h1 className="t-h1">Medicamentos</h1>
             <div className="sub">El cuidado de los remedios, paso a paso.</div>
           </div>
-          {esCuidador && (
+          {puedeGestionar && (
             <button className="btn btn-primary btn-lg" onClick={() => setModal({})}>
               <Icon name="plus" size={26} stroke={2.5} /> Añadir medicamento
             </button>
@@ -444,7 +444,7 @@ function MedicamentosPage() {
               <MedsTab
                 medicamentos={medicamentos}
                 toneDe={toneDe}
-                esCuidador={esCuidador}
+                puedeGestionar={puedeGestionar}
                 onEditar={(m) => setModal(m)}
                 onEliminar={(m) => setPorBorrar(m)}
                 onAgregar={() => setModal({})}

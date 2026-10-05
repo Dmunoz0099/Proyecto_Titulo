@@ -24,7 +24,7 @@ export async function redApoyo(req, res, next) {
   }
 }
 
-// DELETE /api/vinculacion/miembro/:id (CUIDADOR o FAMILIAR vinculado)
+// DELETE /api/vinculacion/miembro/:id (solo FAMILIAR vinculado)
 export async function desvincular(req, res, next) {
   try {
     const resultado = await vinculacionService.desvincular(
@@ -37,7 +37,7 @@ export async function desvincular(req, res, next) {
   }
 }
 
-// POST /api/vinculacion/paciente (solo CUIDADOR)
+// POST /api/vinculacion/paciente (solo FAMILIAR)
 export async function crearPaciente(req, res, next) {
   try {
     const resultado = await vinculacionService.crearPaciente(req.usuario, req.body);
@@ -57,7 +57,7 @@ export async function unir(req, res, next) {
   }
 }
 
-// POST /api/vinculacion/cuenta-paciente (solo CUIDADOR)
+// POST /api/vinculacion/cuenta-paciente (solo FAMILIAR)
 export async function crearCuentaPaciente(req, res, next) {
   try {
     const resultado = await vinculacionService.crearCuentaPaciente(
@@ -70,7 +70,7 @@ export async function crearCuentaPaciente(req, res, next) {
   }
 }
 
-// POST /api/vinculacion/pin-paciente (solo CUIDADOR)
+// POST /api/vinculacion/pin-paciente (solo FAMILIAR)
 export async function cambiarPinPaciente(req, res, next) {
   try {
     const resultado = await vinculacionService.cambiarPinPaciente(
@@ -78,6 +78,19 @@ export async function cambiarPinPaciente(req, res, next) {
       req.body
     );
     res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// POST /api/vinculacion/cuenta-cuidador (solo FAMILIAR)
+export async function crearCuentaCuidador(req, res, next) {
+  try {
+    const resultado = await vinculacionService.crearCuentaCuidador(
+      req.usuario,
+      req.body
+    );
+    res.status(201).json(resultado);
   } catch (error) {
     next(error);
   }

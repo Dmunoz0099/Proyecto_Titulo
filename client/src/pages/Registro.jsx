@@ -15,29 +15,30 @@ import './Login.css';
 // Ojo: el PACIENTE (adulto mayor) NO se registra solo. Su cuenta la crea el
 // FAMILIAR desde dentro de la app (con un usuario y una clave simple), porque no
 // se le pide correo ni que recuerde una contraseña. Por eso acá solo están
-// CUIDADOR y FAMILIAR.
+// FAMILIAR y CUIDADOR. Va primero el familiar porque es quien arma todo.
 const ROLES = [
+  {
+    valor: 'FAMILIAR',
+    emoji: '👪',
+    titulo: 'Familiar',
+    desc: 'Organiza el cuidado y administra los accesos',
+  },
   {
     valor: 'CUIDADOR',
     emoji: '💚',
     titulo: 'Cuidador o cuidadora',
     desc: 'Acompaña y registra el día a día',
   },
-  {
-    valor: 'FAMILIAR',
-    emoji: '👪',
-    titulo: 'Familiar',
-    desc: 'Sigue el bienestar de forma remota',
-  },
 ];
 
 // qué pasa después de crear la cuenta, según el rol. Lo mostramos apenas eligen
-// uno para que sepan qué esperar (y que el familiar vaya buscando el código
+// uno para que sepan qué esperar (y que la cuidadora vaya buscando el código
 // antes de toparse con la pantalla que lo pide).
 const SIGUIENTE_PASO = {
-  CUIDADOR: 'Después crearás el perfil de la persona que vas a cuidar.',
   FAMILIAR:
-    'Necesitarás el código de invitación que te comparta la persona cuidadora. Luego podrás crear la cuenta del adulto mayor y gestionar los accesos.',
+    'Después crearás el perfil del adulto mayor y podrás sumar a la persona cuidadora.',
+  CUIDADOR:
+    'Necesitarás el código de invitación que te comparta la familia. Si la familia ya te creó una cuenta, no te registres: entra con ese usuario.',
 };
 
 // mismo formato de nombre de usuario que valida el backend

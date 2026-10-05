@@ -249,7 +249,7 @@ function Inicio() {
               desc={
                 usuario.rol === 'CUIDADOR'
                   ? 'Remedios, dosis y horarios. Gestiona las tomas.'
-                  : 'Remedios, dosis y horarios. Consulta las tomas.'
+                  : 'Remedios, dosis y horarios. Organiza el tratamiento.'
               }
               foot="Abrir"
               to="/medicamentos"
@@ -259,9 +259,7 @@ function Inicio() {
               icon="heartpulse"
               name="Agenda del día"
               desc={
-                usuario.rol === 'CUIDADOR'
-                  ? 'Organiza la rutina diaria del adulto mayor.'
-                  : 'Revisa la rutina diaria del adulto mayor.'
+                'Organiza la rutina diaria del adulto mayor.'
               }
               foot="Abrir"
               to="/agenda"
@@ -271,9 +269,7 @@ function Inicio() {
               icon="calendar"
               name="Calendario"
               desc={
-                usuario.rol === 'CUIDADOR'
-                  ? 'Horas médicas, paseos y trámites a futuro.'
-                  : 'Revisa las fechas y actividades a futuro.'
+                'Horas médicas, paseos y trámites a futuro.'
               }
               foot="Abrir"
               to="/calendario"
@@ -289,8 +285,8 @@ function Inicio() {
                 to="/juegos"
               />
             )}
-            {/* ambos entran a /familia: el familiar gestiona la cuenta del
-                paciente y los accesos; el cuidador la ve en solo lectura */}
+            {/* ambos entran a /familia: el familiar administra la red (cuentas del
+                paciente y de la cuidadora, accesos); el cuidador la ve en solo lectura */}
             <Module
               tone="primary"
               icon="users"
@@ -298,7 +294,7 @@ function Inicio() {
               desc={
                 usuario.rol === 'CUIDADOR'
                   ? 'La red de apoyo del adulto mayor y quiénes lo acompañan.'
-                  : 'Red de apoyo, cuenta del adulto mayor y código para invitar.'
+                  : 'Administra la red: cuentas del adulto mayor y de la cuidadora.'
               }
               foot="Abrir"
               to="/familia"

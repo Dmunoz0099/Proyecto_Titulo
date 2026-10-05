@@ -1,10 +1,10 @@
 // CalendarioPage.jsx -> el Calendario a largo plazo: horas médicas, centro de
 // madres, paseos del barrio, cumpleaños, trámites... Complementa a la Agenda
 // (que es la rutina DIARIA). Acá cada evento tiene una FECHA concreta.
-//  - Vista PACIENTE / FAMILIAR: "Próximas actividades", una lista grande y clara.
-//  - Vista CUIDADOR: gestiona con una grilla mensual (crear/editar/eliminar) y
-//    puede previsualizar la vista simple con el selector.
-// El rol manda igual que en la agenda: solo el CUIDADOR gestiona.
+//  - Vista PACIENTE: "Próximas actividades", una lista grande y clara.
+//  - Vista de gestión (CUIDADOR y FAMILIAR): grilla mensual (crear/editar/
+//    eliminar) y pueden previsualizar la vista simple con el selector.
+// El rol manda igual que en la agenda.
 
 import { useMemo, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -212,9 +212,9 @@ function VistaCuidador({
 /* la página */
 function CalendarioPage() {
   const { usuario } = useAuth();
-  const esCuidador = usuario.rol === 'CUIDADOR';
+  const puedeGestionar = usuario.rol === 'CUIDADOR' || usuario.rol === 'FAMILIAR';
 
-  const [view, setView] = useState(esCuidador ? 'cuidador' : 'paciente');
+  const [view, setView] = useState(puedeGestionar ? 'cuidador' : 'paciente');
   const hoy = new Date();
   const [year, setYear] = useState(hoy.getFullYear());
   const [month, setMonth] = useState(hoy.getMonth());
@@ -289,14 +289,14 @@ function CalendarioPage() {
           </div>
         )}
 
-        {esCuidador && (
+        {puedeGestionar && (
           <div className="row" style={{ justifyContent: 'center', marginBottom: 'var(--sp-5)' }}>
             <div className="viewtoggle" role="group" aria-label="Cambiar vista">
               <button aria-pressed={view === 'paciente'} onClick={() => setView('paciente')}>
                 <Icon name="user" size={22} /> Vista paciente
               </button>
               <button aria-pressed={view === 'cuidador'} onClick={() => setView('cuidador')}>
-                <Icon name="users" size={22} /> Vista cuidador
+                <Icon name="users" size={22} /> Gestionar
               </button>
             </div>
           </div>
@@ -304,7 +304,7 @@ function CalendarioPage() {
 
         {cargando ? (
           <p className="t-lg muted">Cargando calendario…</p>
-        ) : esCuidador && view === 'cuidador' ? (
+        ) : puedeGestionar && view === 'cuidador' ? (
           <VistaCuidador
             eventos={eventos}
             year={year}

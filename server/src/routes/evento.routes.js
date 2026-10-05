@@ -1,5 +1,5 @@
 // evento.routes.js -> endpoints de la Agenda. Mismo encadenado que medicamentos.
-// Permisos: listar lo hace cualquiera con sesión; crear/editar/eliminar solo CUIDADOR.
+// Permisos: listar lo hace cualquiera con sesión; crear/editar/eliminar el CUIDADOR o el FAMILIAR.
 
 import { Router } from 'express';
 import * as eventoController from '../controllers/evento.controller.js';
@@ -16,23 +16,23 @@ router.use(autenticar);
 // lista los eventos del día
 router.get('/', eventoController.listar);
 
-// crear (solo CUIDADOR)
+// crear (CUIDADOR o FAMILIAR)
 router.post(
   '/',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaEvento),
   eventoController.crear
 );
 
-// actualizar (solo CUIDADOR)
+// actualizar (CUIDADOR o FAMILIAR)
 router.put(
   '/:id',
-  autorizar('CUIDADOR'),
+  autorizar('CUIDADOR', 'FAMILIAR'),
   validar(esquemaEvento),
   eventoController.actualizar
 );
 
-// eliminar (solo CUIDADOR)
-router.delete('/:id', autorizar('CUIDADOR'), eventoController.eliminar);
+// eliminar (CUIDADOR o FAMILIAR)
+router.delete('/:id', autorizar('CUIDADOR', 'FAMILIAR'), eventoController.eliminar);
 
 export default router;

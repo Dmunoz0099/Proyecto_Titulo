@@ -52,7 +52,7 @@ function Login() {
   // estado de la UI
   const [reveal, setReveal] = useState(false); // mostrar/ocultar contraseña
   // "mantener sesión iniciada": arranca activado porque el caso típico es el
-  // dispositivo de casa del adulto mayor (así el cuidador lo deja listo una vez)
+  // dispositivo de casa del adulto mayor (así la familia o la cuidadora lo dejan listo una vez)
   const [recordar, setRecordar] = useState(true);
   const [touched, setTouched] = useState({ usuario: false, password: false });
   const [error, setError] = useState('');

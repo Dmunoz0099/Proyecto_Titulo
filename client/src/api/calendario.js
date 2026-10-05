@@ -9,19 +9,19 @@ export async function listarEventosCalendario() {
   return data;
 }
 
-// crear (solo CUIDADOR). Devuelve el creado.
+// crear (CUIDADOR o FAMILIAR). Devuelve el creado.
 export async function crearEventoCalendario(datos) {
   const { data } = await api.post('/calendario', datos);
   return data;
 }
 
-// actualizar (solo CUIDADOR). Devuelve el actualizado.
+// actualizar (CUIDADOR o FAMILIAR). Devuelve el actualizado.
 export async function actualizarEventoCalendario(id, datos) {
   const { data } = await api.put(`/calendario/${id}`, datos);
   return data;
 }
 
-// eliminar (solo CUIDADOR)
+// eliminar (CUIDADOR o FAMILIAR)
 export async function eliminarEventoCalendario(id) {
   await api.delete(`/calendario/${id}`);
 }

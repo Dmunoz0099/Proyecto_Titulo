@@ -37,7 +37,7 @@ export async function listar(usuario) {
   });
 }
 
-// --- CREAR (solo CUIDADOR) ---
+// --- CREAR (CUIDADOR o FAMILIAR) ---
 export async function crear(usuario, datos) {
   const adultoMayorId = await obtenerAdultoMayorId(usuario);
   return prisma.eventoAgenda.create({
@@ -51,7 +51,7 @@ export async function crear(usuario, datos) {
   });
 }
 
-// --- ACTUALIZAR (solo CUIDADOR) ---
+// --- ACTUALIZAR (CUIDADOR o FAMILIAR) ---
 export async function actualizar(usuario, eventoId, datos) {
   const adultoMayorId = await obtenerAdultoMayorId(usuario);
   await obtenerEventoPropio(eventoId, adultoMayorId);
@@ -67,7 +67,7 @@ export async function actualizar(usuario, eventoId, datos) {
   });
 }
 
-// --- ELIMINAR (solo CUIDADOR) ---
+// --- ELIMINAR (CUIDADOR o FAMILIAR) ---
 // acá sí es borrado físico: un evento no tiene historial que valga la pena
 // conservar (a diferencia del medicamento).
 export async function eliminar(usuario, eventoId) {

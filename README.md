@@ -34,19 +34,19 @@ Cada rol tiene **acciones propias**, no solo más o menos permisos:
 | Rol          | Qué puede hacer |
 | ------------ | --------------- |
 | **PACIENTE** | Vista simple y accesible. Botón **SOS "Necesito ayuda"** (exclusivo), campana de recordatorios, marcar sus tomas, jugar (Memorice y Sopa de letras). |
-| **CUIDADOR** | Único que **gestiona**: crea/edita/elimina medicamentos y eventos de agenda. Ve y atiende alertas SOS (panel del inicio + campana de notificaciones). Puede jugar y ve el seguimiento. |
-| **FAMILIAR** | **Monitorea** a distancia: consulta medicamentos, agenda y progreso. Ve y atiende alertas SOS (panel del inicio + campana de notificaciones). No gestiona ni juega. |
+| **FAMILIAR** | **Administra** el cuidado: crea al adulto mayor, crea las cuentas del **paciente** (usuario + PIN) y de la **persona cuidadora**, comparte el código y desvincula miembros. Gestiona medicamentos, agenda y calendario (junto con el cuidador). Ve y atiende alertas SOS y el progreso. No juega. |
+| **CUIDADOR** | **Opera** el día a día: gestiona medicamentos, agenda y calendario, marca las tomas, ve y atiende alertas SOS, juega con el paciente y ve el seguimiento. Se une con el código de la familia (o entra con la cuenta que le creó el familiar). Ve la red de apoyo en solo lectura. |
 
 El inicio de sesión es por **nombre de usuario** (no email), pensado para adultos
 mayores que pueden no tener o no recordar un correo. El email es opcional.
 
-Solo el **CUIDADOR** y el **FAMILIAR** se registran por sí mismos (con contraseña y
-correo opcional). El **PACIENTE** (adulto mayor) **no se registra solo**: su cuenta
-la crea la persona cuidadora desde la app, con un usuario y una **clave simple** y
-**sin correo** (no se le pide recordar contraseñas ni tener email). Al registrarse,
-la cuenta del cuidador/familiar aún no está asociada a nadie: el cuidador crea al
-adulto mayor y obtiene un **código de invitación**; el familiar se conecta al mismo
-adulto mayor tecleando ese código (ver "Vinculación" más abajo).
+El flujo parte por el **FAMILIAR**: se registra, crea al adulto mayor y obtiene un
+**código de invitación**. La **persona cuidadora** tiene dos caminos: el familiar le
+crea la cuenta desde el módulo "Familia" (y entra directo, ya vinculada), o ella se
+registra y se une tecleando el código. El **PACIENTE** (adulto mayor) **no se registra
+solo**: su cuenta la crea el familiar, con un usuario y un **PIN de 4 números** y
+**sin correo**. La razón de fondo: la cuidadora puede cambiar (renuncias, turnos),
+la familia no, así que la administración queda en la familia.
 
 ---
 
@@ -57,14 +57,14 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
   del usuario, así los endpoints no lo re-consultan en la BD en cada petición
   (menos viajes de red = respuesta más rápida).
 - **Vinculación cuenta↔adulto mayor por código de invitación**: tras registrarse, el
-  cuidador/familiar pasa por `/vincular`. El cuidador crea al adulto mayor y recibe un
-  código corto (`CM-XXXXX`); el familiar se une al mismo adulto mayor con ese código
-  (sin duplicar datos). Al vincular se re-emite el JWT ya con el vínculo.
-- **Cuenta del paciente creada por el familiar**: el adulto mayor no se registra solo.
-  Desde el módulo **"Familia"**, el familiar le crea un usuario con una clave simple
-  (sin correo) y se los entrega; esa cuenta queda ligada al mismo adulto mayor. Antes
-  lo hacía el cuidador, pero se movió al familiar por ser el rol estable de la red (el
-  cuidador puede renunciar o faltar).
+  familiar/cuidador pasa por `/vincular`. El **familiar** crea al adulto mayor y recibe
+  un código corto (`CM-XXXXX`); la persona cuidadora (u otro familiar) se une al mismo
+  adulto mayor con ese código (sin duplicar datos). Al vincular se re-emite el JWT ya
+  con el vínculo.
+- **Cuentas creadas por el familiar**: desde el módulo **"Familia"**, el familiar crea
+  la cuenta del **paciente** (usuario + PIN, sin correo) y la de la **persona
+  cuidadora** (usuario + contraseña). Ambas quedan ligadas al mismo adulto mayor y
+  entran directo a su inicio.
 - **Login accesible para el adulto mayor**: (1) **tarjetas de usuario** — el
   dispositivo recuerda quiénes ya entraron y los muestra como tarjetas grandes con
   avatar y nombre; se toca la propia y no se teclea el usuario; (2) **PIN numérico** —
@@ -76,23 +76,23 @@ adulto mayor tecleando ese código (ver "Vinculación" más abajo).
 - **Inicio diferenciado por rol**: el paciente ve su botón SOS y módulos simples;
   cuidador/familiar ven el panel de alertas y la gestión. Incluye un "vistazo de
   hoy" con la próxima toma, la siguiente actividad y el próximo evento del calendario.
-- **Medicamentos**: CRUD (solo cuidador), registro de tomas con historial de quién y
-  cuándo, y borrado lógico para no perder el historial.
-- **Agenda diaria**: rutina del día ordenada por hora, con iconos; gestión solo del
-  cuidador. Catálogo de **22 iconos agrupados por categoría** (rutina, salud, social,
+- **Medicamentos**: CRUD (cuidador y familiar), registro de tomas (cuidador o
+  paciente) con historial de quién y cuándo, y borrado lógico para no perder el historial.
+- **Agenda diaria**: rutina del día ordenada por hora, con iconos; la gestionan el
+  cuidador y el familiar. Catálogo de **22 iconos agrupados por categoría** (rutina, salud, social,
   salidas) para identificar mejor cada actividad.
 - **Calendario a largo plazo**: eventos con fecha concreta (horas médicas, centro de
-  madres, paseos del barrio, cumpleaños, trámites...). El cuidador los gestiona en una
-  grilla mensual; el paciente y el familiar ven una lista de "Próximas actividades".
+  madres, paseos del barrio, cumpleaños, trámites...). El cuidador y el familiar los
+  gestionan en una grilla mensual; el paciente ve una lista de "Próximas actividades".
   Complementa a la agenda (que es la rutina diaria, sin fecha).
 - **Alertas SOS**: el paciente pide ayuda con un botón grande; el cuidador/familiar
   las ven (pendientes primero) y las marcan como atendidas.
 - **Familia (red de apoyo)**: módulo `/familia` con distinto alcance por rol, porque
   la familia es el rol **estable** (el cuidador puede renunciar o faltar).
-  - **Familiar (gestiona)**: ve la red de apoyo, **crea/gestiona la cuenta del adulto
-    mayor** (usuario + PIN), comparte el **código de invitación** (botón copiar) para
-    sumar a una nueva persona cuidadora o a otro familiar, y puede **desvincular**
-    ("Quitar", con confirmación) a cualquiera de la red menos a sí mismo y al paciente.
+  - **Familiar (administra)**: ve la red de apoyo, **crea/gestiona la cuenta del
+    adulto mayor** (usuario + PIN), **crea la cuenta de la persona cuidadora**, comparte
+    el **código de invitación** (botón copiar) y puede **desvincular** ("Quitar", con
+    confirmación) a cualquiera de la red menos a sí mismo y al paciente.
   - **Cuidador (solo lectura)**: ve los datos del adulto mayor, con quién está
     conectado y el código para copiar, pero sin acciones de gestión.
 - **Juegos** (dos, con selección previa): **Memorice** (parejas de emojis por temas
@@ -130,10 +130,10 @@ Proyecto_Titulo/
 │       ├── components/
 │       │   ├── ui/          # Componentes reutilizables (Icon, Logo)
 │       │   └── layout/      # AppBar (barra superior + campana)
-│       ├── features/        # agenda, calendario, alertas, juegos, medicamentos, recordatorios
+│       ├── features/        # agenda, calendario, alertas, juegos, medicamentos, recordatorios, vinculacion
 │       ├── context/         # AuthContext (sesión global)
 │       ├── hooks/           # useAuth
-│       ├── pages/           # Login, Registro, Vincular, Inicio
+│       ├── pages/           # Login, Registro, Vincular, Inicio, Familia
 │       ├── routes/          # AppRoutes + RutaProtegida + ScrollToTop
 │       ├── styles/          # Paleta (variables CSS) y estilos CuidaMayor
 │       └── utils/           # Utilidades del frontend
@@ -168,26 +168,29 @@ permitidos.
 | POST   | `/auth/registro` | Crear cuenta |
 | POST   | `/auth/login` | Iniciar sesión |
 | GET    | `/auth/perfil` | 🔒 Perfil del usuario autenticado |
-| GET    | `/vinculacion/estado` | 🔒 ¿Cuenta vinculada? (y el código si es CUIDADOR) |
-| POST   | `/vinculacion/paciente` | 🔒 (CUIDADOR) Crear al adulto mayor y obtener código |
+| GET    | `/vinculacion/estado` | 🔒 ¿Cuenta vinculada? (y el código, salvo para el paciente) |
+| GET    | `/vinculacion/red` | 🔒 Red de apoyo: adulto mayor, personas conectadas y código |
+| POST   | `/vinculacion/paciente` | 🔒 (FAMILIAR) Crear al adulto mayor y obtener código |
 | POST   | `/vinculacion/unir` | 🔒 Unirse a un adulto mayor con el código |
-| POST   | `/vinculacion/cuenta-paciente` | 🔒 (CUIDADOR) Crear la cuenta del paciente (usuario + PIN de 4 números) |
-| POST   | `/vinculacion/pin-paciente` | 🔒 (CUIDADOR) Cambiar el PIN del paciente |
+| POST   | `/vinculacion/cuenta-paciente` | 🔒 (FAMILIAR) Crear la cuenta del paciente (usuario + PIN de 4 números) |
+| POST   | `/vinculacion/pin-paciente` | 🔒 (FAMILIAR) Cambiar el PIN del paciente |
+| POST   | `/vinculacion/cuenta-cuidador` | 🔒 (FAMILIAR) Crear la cuenta de la persona cuidadora (ya vinculada) |
+| DELETE | `/vinculacion/miembro/:id` | 🔒 (FAMILIAR) Desvincular a alguien de la red (no al paciente ni a sí mismo) |
 | GET    | `/medicamentos` | 🔒 Medicamentos activos |
-| POST   | `/medicamentos` | 🔒 (CUIDADOR) Crear |
-| PUT    | `/medicamentos/:id` | 🔒 (CUIDADOR) Actualizar |
-| DELETE | `/medicamentos/:id` | 🔒 (CUIDADOR) Borrado lógico |
+| POST   | `/medicamentos` | 🔒 (CUIDADOR, FAMILIAR) Crear |
+| PUT    | `/medicamentos/:id` | 🔒 (CUIDADOR, FAMILIAR) Actualizar |
+| DELETE | `/medicamentos/:id` | 🔒 (CUIDADOR, FAMILIAR) Borrado lógico |
 | POST   | `/medicamentos/:id/tomas` | 🔒 Registrar toma |
 | GET    | `/medicamentos/:id/tomas` | 🔒 Historial de un medicamento |
 | GET    | `/medicamentos/tomas` | 🔒 Todas las tomas del adulto mayor |
 | GET    | `/agenda` | 🔒 Eventos del día (por hora) |
-| POST   | `/agenda` | 🔒 (CUIDADOR) Crear evento |
-| PUT    | `/agenda/:id` | 🔒 (CUIDADOR) Actualizar evento |
-| DELETE | `/agenda/:id` | 🔒 (CUIDADOR) Eliminar evento |
+| POST   | `/agenda` | 🔒 (CUIDADOR, FAMILIAR) Crear evento |
+| PUT    | `/agenda/:id` | 🔒 (CUIDADOR, FAMILIAR) Actualizar evento |
+| DELETE | `/agenda/:id` | 🔒 (CUIDADOR, FAMILIAR) Eliminar evento |
 | GET    | `/calendario` | 🔒 Eventos del calendario (por fecha) |
-| POST   | `/calendario` | 🔒 (CUIDADOR) Crear evento de calendario |
-| PUT    | `/calendario/:id` | 🔒 (CUIDADOR) Actualizar evento de calendario |
-| DELETE | `/calendario/:id` | 🔒 (CUIDADOR) Eliminar evento de calendario |
+| POST   | `/calendario` | 🔒 (CUIDADOR, FAMILIAR) Crear evento de calendario |
+| PUT    | `/calendario/:id` | 🔒 (CUIDADOR, FAMILIAR) Actualizar evento de calendario |
+| DELETE | `/calendario/:id` | 🔒 (CUIDADOR, FAMILIAR) Eliminar evento de calendario |
 | POST   | `/alertas` | 🔒 (PACIENTE) Crear alerta SOS |
 | GET    | `/alertas` | 🔒 (CUIDADOR, FAMILIAR) Listar alertas |
 | POST   | `/alertas/:id/atender` | 🔒 (CUIDADOR, FAMILIAR) Atender alerta |
@@ -335,10 +338,10 @@ para todos):
 > El seed es idempotente: **borra todos los datos existentes** y los vuelve a crear.
 
 > Para probar la **vinculación desde cero** (usuarios reales): regístrate como
-> CUIDADOR → la app te lleva a `/vincular`, creas al adulto mayor y recibes un
-> código. Una cuenta nueva de FAMILIAR se une al mismo adulto mayor con ese código y,
-> desde el módulo **"Familia"**, crea la **cuenta del paciente** (usuario + PIN). (El
-> rol PACIENTE ya no aparece en el registro público: lo crea el familiar.)
+> FAMILIAR → la app te lleva a `/vincular`, creas al adulto mayor y recibes un
+> código. Desde el módulo **"Familia"** creas la **cuenta del paciente** (usuario +
+> PIN) y la de la **persona cuidadora**; o bien, una cuenta nueva de CUIDADOR se une
+> con el código. (El rol PACIENTE no aparece en el registro público: lo crea el familiar.)
 
 ---
 

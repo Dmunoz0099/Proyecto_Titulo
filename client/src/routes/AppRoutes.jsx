@@ -73,8 +73,8 @@ export function AppRoutes() {
         }
       />
 
-      {/* familia: la red de apoyo. El FAMILIAR gestiona la cuenta del paciente y
-          los accesos; el CUIDADOR la ve en solo lectura (por ahora) */}
+      {/* familia: la red de apoyo. El FAMILIAR la administra (crea las cuentas del
+          paciente y de la cuidadora, maneja los accesos); el CUIDADOR solo la ve */}
       <Route
         path="/familia"
         element={

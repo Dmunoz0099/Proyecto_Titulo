@@ -1,5 +1,5 @@
 // EventoCalendarioModal.jsx -> diálogo para crear o editar un evento del
-// calendario a largo plazo. Solo lo usa el CUIDADOR. Igual que el de la agenda,
+// calendario a largo plazo. Lo usan el CUIDADOR y el FAMILIAR. Igual que el de la agenda,
 // pero con FECHA (día concreto) además de la hora.
 
 import { useState } from 'react';
