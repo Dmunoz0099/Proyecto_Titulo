@@ -20,6 +20,7 @@ import { prisma } from '../config/prisma.js';
 import { crearError } from '../utils/errores.js';
 import { generarToken } from '../utils/jwt.js';
 import { generarCodigo, normalizarCodigo } from '../utils/codigo.js';
+import { olvidarVinculo } from './usuario.service.js';
 
 // mismas rondas de bcrypt que en auth (10 es lo típico)
 const RONDAS_SALT = 10;
@@ -70,8 +71,8 @@ async function generarCodigoUnico() {
 }
 
 // --- ESTADO ---
-// ¿la cuenta ya está vinculada? Si sí, devuelvo a quién y (para el familiar y el
-// cuidador) el código, para que puedan re-verlo y compartirlo cuando quieran.
+// ¿la cuenta ya está vinculada? Si sí, devuelvo a quién y, solo al familiar, el
+// código para que lo pueda re-ver y compartir cuando quiera.
 export async function estado(usuarioToken) {
   const usuario = await usuarioActual(usuarioToken.id);
 
@@ -102,10 +103,10 @@ export async function estado(usuarioToken) {
     adultoMayor: adultoMayor
       ? { id: adultoMayor.id, nombre: adultoMayor.nombre }
       : null,
-    // el código es para quien invita: el familiar (y el cuidador, por si tiene que
-    // pasárselo a alguien de la familia). Al paciente no le sirve.
+    // el código lo maneja solo la familia: si la cuidadora lo viera, podría
+    // volver a entrar después de que la desvinculen
     codigo:
-      usuario.rol === 'PACIENTE' ? null : adultoMayor?.codigoInvitacion ?? null,
+      usuario.rol === 'FAMILIAR' ? adultoMayor?.codigoInvitacion ?? null : null,
     cuentaPaciente,
   };
 }
@@ -116,9 +117,9 @@ export async function estado(usuarioToken) {
 // el módulo "Familia" para ver con quién está conectado. Marco cuál es "yo" para
 // que el front lo destaque.
 //
-// Devuelvo también el código de invitación: el familiar lo necesita para poder
-// vincular a una NUEVA persona cuidadora (por ejemplo si la anterior renuncia) o
-// a otro familiar, sin depender de que el cuidador se lo pase.
+// El código de invitación va solo para el familiar: lo necesita para sumar a una
+// NUEVA persona cuidadora (si la anterior renuncia) o a otro familiar. Al resto
+// le llega en null.
 export async function redApoyo(usuarioToken) {
   const usuario = await usuarioActual(usuarioToken.id);
 
@@ -165,7 +166,8 @@ export async function redApoyo(usuarioToken) {
       fechaNacimiento: adultoMayor.fechaNacimiento,
       notas: adultoMayor.notas,
     },
-    codigo: adultoMayor.codigoInvitacion ?? null,
+    codigo:
+      usuario.rol === 'FAMILIAR' ? adultoMayor.codigoInvitacion ?? null : null,
     miembros,
     cuentaPaciente,
   };
@@ -173,9 +175,12 @@ export async function redApoyo(usuarioToken) {
 
 // --- DESVINCULAR A UN MIEMBRO (solo FAMILIAR ya vinculado) ---
 // quita a otra persona de la cuenta del adulto mayor (le deja adultoMayorId en
-// null, así pierde el acceso pero su cuenta sigue existiendo y puede volver a
-// unirse con el código). Caso típico: la persona cuidadora renuncia o falta un
-// día y entra otra nueva. No borra la cuenta ni ningún dato del adulto mayor.
+// null, así pierde el acceso; su cuenta sigue existiendo). Caso típico: la persona
+// cuidadora renuncia o falta un día y entra otra nueva. No borra la cuenta ni
+// ningún dato del adulto mayor.
+//
+// De pasada renuevo el código de invitación: si no, quien salió podría volver a
+// entrar con el código que ya conocía. Los que siguen conectados no pierden nada.
 //
 // Reglas: solo dentro del MISMO adulto mayor; no te puedes quitar a ti mismo por
 // acá; y no se puede quitar al PACIENTE (su cuenta ES la del adulto mayor).
@@ -199,12 +204,43 @@ export async function desvincular(usuarioToken, idObjetivo) {
     throw crearError(409, 'No puedes desvincular al adulto mayor de su propia cuenta');
   }
 
-  await prisma.usuario.update({
-    where: { id: objetivo.id },
-    data: { adultoMayorId: null },
+  const codigo = await generarCodigoUnico();
+
+  // las dos cosas juntas: no quiero dejar a alguien afuera con el código viejo vivo
+  await prisma.$transaction([
+    prisma.usuario.update({
+      where: { id: objetivo.id },
+      data: { adultoMayorId: null },
+    }),
+    prisma.adultoMayor.update({
+      where: { id: solicitante.adultoMayorId },
+      data: { codigoInvitacion: codigo },
+    }),
+  ]);
+
+  // y que su sesión abierta deje de servir (ver obtenerAdultoMayorId)
+  olvidarVinculo(objetivo.id);
+
+  return { ok: true, id: objetivo.id, nombre: objetivo.nombre, codigo };
+}
+
+// --- RENOVAR EL CÓDIGO (solo FAMILIAR ya vinculado) ---
+// por si el código se compartió de más: genero otro y el anterior deja de servir.
+// Quienes ya están conectados siguen igual.
+export async function renovarCodigo(usuarioToken) {
+  const usuario = await usuarioActual(usuarioToken.id);
+
+  if (!usuario.adultoMayorId) {
+    throw crearError(409, 'Tu cuenta no está vinculada a ningún adulto mayor');
+  }
+
+  const codigo = await generarCodigoUnico();
+  await prisma.adultoMayor.update({
+    where: { id: usuario.adultoMayorId },
+    data: { codigoInvitacion: codigo },
   });
 
-  return { ok: true, id: objetivo.id, nombre: objetivo.nombre };
+  return { codigo };
 }
 
 // --- CREAR PACIENTE (solo FAMILIAR, cuenta sin vincular) ---
@@ -246,7 +282,8 @@ export async function crearPaciente(usuarioToken, datos) {
   };
 }
 
-// --- UNIRSE POR CÓDIGO (cualquier rol, cuenta sin vincular) ---
+// --- UNIRSE POR CÓDIGO (CUIDADOR o FAMILIAR, cuenta sin vincular) ---
+// el filtro de rol está en la ruta: el paciente nunca entra por acá
 export async function unir(usuarioToken, datos) {
   const usuario = await usuarioActual(usuarioToken.id);
 

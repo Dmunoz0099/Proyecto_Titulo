@@ -3,9 +3,9 @@
 //   - FAMILIAR: es el rol estable de la red (la persona cuidadora puede renunciar
 //     o faltar). Por eso la ADMINISTRA: crea la cuenta con la que entra el adulto
 //     mayor y cambia su PIN, crea la cuenta de la persona cuidadora (o le pasa el
-//     código) y puede desvincular a alguien de la red.
-//   - CUIDADOR: la ve en SOLO LECTURA: los datos del adulto mayor, con quién está
-//     conectado y el código para copiar.
+//     código), puede desvincular a alguien de la red y renovar el código.
+//   - CUIDADOR: la ve en SOLO LECTURA: los datos del adulto mayor y con quién está
+//     conectado. El código no lo ve (lo maneja solo la familia).
 
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
@@ -14,7 +14,11 @@ import { Icon } from '../components/ui/Icon.jsx';
 import { DialogoConfirmar } from '../components/ui/DialogoConfirmar.jsx';
 import { CuentaAdultoMayor } from '../features/vinculacion/CuentaAdultoMayor.jsx';
 import { CuentaCuidador } from '../features/vinculacion/CuentaCuidador.jsx';
-import { obtenerRedApoyo, desvincularMiembro } from '../api/vinculacion.js';
+import {
+  obtenerRedApoyo,
+  desvincularMiembro,
+  renovarCodigo,
+} from '../api/vinculacion.js';
 import { useRecurso } from '../api/cache.js';
 import './Familia.css';
 
@@ -66,6 +70,11 @@ function Familia() {
   const [quitando, setQuitando] = useState(false);
   const [avisoQuitar, setAvisoQuitar] = useState('');
 
+  // renovar el código (también con diálogo, porque el anterior deja de servir)
+  const [confirmarRenovar, setConfirmarRenovar] = useState(false);
+  const [renovando, setRenovando] = useState(false);
+  const [avisoCodigo, setAvisoCodigo] = useState('');
+
   const adultoMayor = datos?.adultoMayor;
   const miembros = datos?.miembros || [];
   const codigo = datos?.codigo;
@@ -78,13 +87,35 @@ function Familia() {
     try {
       await desvincularMiembro(miembro.id);
       setPorQuitar(null);
+      // el backend renovó el código, así que refresco para mostrar el nuevo
       await refrescar();
+      setAvisoCodigo(
+        `Quitamos a ${miembro.nombre} y generamos un código nuevo; el anterior ya no sirve.`
+      );
     } catch (err) {
       setAvisoQuitar(
         err.response?.data?.error || 'No pudimos desvincular a esta persona.'
       );
     } finally {
       setQuitando(false);
+    }
+  }
+
+  async function renovar() {
+    setRenovando(true);
+    setAvisoCodigo('');
+    try {
+      await renovarCodigo();
+      setConfirmarRenovar(false);
+      await refrescar();
+      setAvisoCodigo('Listo: este es el código nuevo. El anterior ya no sirve.');
+    } catch (err) {
+      setConfirmarRenovar(false);
+      setAvisoCodigo(
+        err.response?.data?.error || 'No pudimos generar un código nuevo.'
+      );
+    } finally {
+      setRenovando(false);
     }
   }
 
@@ -219,22 +250,35 @@ function Familia() {
             )}
 
             {/* código de invitación: para quien prefiera registrarse por su cuenta
-                (otra cuidadora u otro familiar) */}
-            <h2 className="fam-titulo fam-titulo-sep">Sumar a alguien más</h2>
-            <div className="card fam-codigo-card">
-              <p className="fam-codigo-texto">
-                {esFamiliar
-                  ? 'También puedes compartir este código: quien lo reciba (una persona cuidadora u otro familiar) crea su cuenta y lo ingresa.'
-                  : 'Este es el código con el que la familia conecta a más personas al cuidado del adulto mayor.'}
-              </p>
-              {codigo ? (
-                <CodigoInvitacion codigo={codigo} />
-              ) : (
-                <p className="fam-nota muted" style={{ marginTop: 0 }}>
-                  Esta cuenta todavía no tiene un código de invitación.
-                </p>
-              )}
-            </div>
+                (otra cuidadora u otro familiar). Solo lo ve y lo maneja el familiar */}
+            {esFamiliar && (
+              <>
+                <h2 className="fam-titulo fam-titulo-sep">Sumar a alguien más</h2>
+                <div className="card fam-codigo-card">
+                  <p className="fam-codigo-texto">
+                    También puedes compartir este código: quien lo reciba (una
+                    persona cuidadora u otro familiar) crea su cuenta y lo ingresa.
+                    Si crees que se compartió de más, genera uno nuevo y el anterior
+                    deja de servir.
+                  </p>
+                  {codigo ? (
+                    <CodigoInvitacion
+                      codigo={codigo}
+                      onRenovar={() => setConfirmarRenovar(true)}
+                    />
+                  ) : (
+                    <p className="fam-nota muted" style={{ marginTop: 0 }}>
+                      Esta cuenta todavía no tiene un código de invitación.
+                    </p>
+                  )}
+                  {avisoCodigo && (
+                    <p className="fam-nota" role="status" style={{ marginBottom: 0 }}>
+                      {avisoCodigo}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
 
             <p className="fam-nota muted">
               {esFamiliar
@@ -248,19 +292,35 @@ function Familia() {
       {porQuitar && (
         <DialogoConfirmar
           titulo="Desvincular de la red de apoyo"
-          mensaje={`${porQuitar.nombre} (${ETIQUETA_ROL[porQuitar.rol] || porQuitar.rol}) dejará de tener acceso a la cuenta del adulto mayor. Podrá volver a unirse con el código si hace falta.`}
+          mensaje={`${porQuitar.nombre} (${ETIQUETA_ROL[porQuitar.rol] || porQuitar.rol}) dejará de tener acceso a la cuenta del adulto mayor. También se generará un código de invitación nuevo, para que no pueda volver a entrar con el anterior.`}
           textoConfirmar="Sí, desvincular"
+          icono="x"
+          textoProcesando="Desvinculando…"
           procesando={quitando}
           onConfirmar={() => quitar(porQuitar)}
           onCancelar={() => setPorQuitar(null)}
+        />
+      )}
+
+      {confirmarRenovar && (
+        <DialogoConfirmar
+          titulo="Generar un código nuevo"
+          mensaje="El código actual dejará de funcionar. Quienes ya están conectados no pierden el acceso; solo tendrás que compartir el nuevo con quien quieras sumar."
+          textoConfirmar="Sí, generar otro"
+          icono="history"
+          textoProcesando="Generando…"
+          procesando={renovando}
+          onConfirmar={renovar}
+          onCancelar={() => setConfirmarRenovar(false)}
         />
       )}
     </div>
   );
 }
 
-// recuadro del código de invitación, con botón para copiarlo al portapapeles
-function CodigoInvitacion({ codigo }) {
+// recuadro del código de invitación, con botón para copiarlo al portapapeles y
+// otro para pedir uno nuevo
+function CodigoInvitacion({ codigo, onRenovar }) {
   const [copiado, setCopiado] = useState(false);
 
   async function copiar() {
@@ -280,6 +340,11 @@ function CodigoInvitacion({ codigo }) {
       <button type="button" className="fam-codigo-btn" onClick={copiar}>
         {copiado ? '¡Copiado!' : 'Copiar código'}
       </button>
+      {onRenovar && (
+        <button type="button" className="fam-codigo-renovar" onClick={onRenovar}>
+          Generar nuevo código
+        </button>
+      )}
     </div>
   );
 }

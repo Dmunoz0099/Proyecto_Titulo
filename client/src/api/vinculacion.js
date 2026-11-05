@@ -17,9 +17,17 @@ export async function obtenerRedApoyo() {
 }
 
 // el familiar quita a una persona de la red de apoyo (cuidador que renuncia,
-// etc.). Devuelve { ok, id, nombre }. El backend valida permisos y protege al paciente.
+// etc.). Devuelve { ok, id, nombre, codigo } (el código se renueva al quitar a
+// alguien). El backend valida permisos y protege al paciente.
 export async function desvincularMiembro(id) {
   const { data } = await api.delete(`/vinculacion/miembro/${id}`);
+  return data;
+}
+
+// el familiar genera un código de invitación nuevo (el anterior deja de servir).
+// Devuelve { codigo }.
+export async function renovarCodigo() {
+  const { data } = await api.post('/vinculacion/codigo');
   return data;
 }
 

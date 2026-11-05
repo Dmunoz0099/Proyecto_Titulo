@@ -47,10 +47,20 @@ export async function crearPaciente(req, res, next) {
   }
 }
 
-// POST /api/vinculacion/unir (cualquier rol con sesión)
+// POST /api/vinculacion/unir (CUIDADOR o FAMILIAR sin vincular)
 export async function unir(req, res, next) {
   try {
     const resultado = await vinculacionService.unir(req.usuario, req.body);
+    res.json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// POST /api/vinculacion/codigo (solo FAMILIAR): código de invitación nuevo
+export async function renovarCodigo(req, res, next) {
+  try {
+    const resultado = await vinculacionService.renovarCodigo(req.usuario);
     res.json(resultado);
   } catch (error) {
     next(error);

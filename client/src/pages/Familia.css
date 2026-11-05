@@ -84,6 +84,16 @@
 .fam-codigo-btn:hover { background: color-mix(in oklab, var(--primary), white 88%); }
 .fam-codigo-btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
 
+/* renovar el código: más discreto que copiar, pero igual de fácil de tocar */
+.fam-codigo-renovar {
+  border: 0; background: none; color: var(--ink-soft);
+  font-family: inherit; font-weight: 600; font-size: var(--fs-body);
+  text-decoration: underline; text-underline-offset: 3px;
+  padding: 10px 14px; min-height: 44px; cursor: pointer;
+}
+.fam-codigo-renovar:hover { color: var(--primary-strong); }
+.fam-codigo-renovar:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 8px; }
+
 /* aviso de error al desvincular */
 .fam-aviso {
   display: flex; align-items: center; gap: 10px;

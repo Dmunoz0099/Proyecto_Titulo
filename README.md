@@ -46,21 +46,26 @@ crea la cuenta desde el módulo "Familia" (y entra directo, ya vinculada), o ell
 registra y se une tecleando el código. El **PACIENTE** (adulto mayor) **no se registra
 solo**: su cuenta la crea el familiar, con un usuario y un **PIN de 4 números** y
 **sin correo**. La razón de fondo: la cuidadora puede cambiar (renuncias, turnos),
-la familia no, así que la administración queda en la familia.
+la familia no, así que la administración queda en la familia. Por eso el **código de
+invitación lo ve y lo controla solo el familiar**: puede renovarlo cuando quiera y se
+renueva solo al desvincular a alguien, para que quien salió no pueda volver a entrar.
 
 ---
 
 ## ✨ Funcionalidades
 
 - **Autenticación completa**: registro, login y perfil con JWT; rutas protegidas por
-  rol tanto en el backend como en el frontend. El token lleva el `adultoMayorId`
-  del usuario, así los endpoints no lo re-consultan en la BD en cada petición
-  (menos viajes de red = respuesta más rápida).
+  rol tanto en el backend como en el frontend. El registro público solo acepta
+  **cuidador** y **familiar** (el backend rechaza `PACIENTE` aunque se llame directo a
+  la API). El vínculo con el adulto mayor se confirma contra la BD y se recuerda 30
+  segundos en memoria: casi no suma viajes de red y, si el familiar desvincula a
+  alguien, su sesión abierta deja de servir (antes el `adultoMayorId` del token
+  seguía valiendo hasta que vencía).
 - **Vinculación cuenta↔adulto mayor por código de invitación**: tras registrarse, el
   familiar/cuidador pasa por `/vincular`. El **familiar** crea al adulto mayor y recibe
   un código corto (`CM-XXXXX`); la persona cuidadora (u otro familiar) se une al mismo
-  adulto mayor con ese código (sin duplicar datos). Al vincular se re-emite el JWT ya
-  con el vínculo.
+  adulto mayor con ese código (sin duplicar datos). El paciente no puede usar el
+  código. Al vincular se re-emite el JWT ya con el vínculo.
 - **Cuentas creadas por el familiar**: desde el módulo **"Familia"**, el familiar crea
   la cuenta del **paciente** (usuario + PIN, sin correo) y la de la **persona
   cuidadora** (usuario + contraseña). Ambas quedan ligadas al mismo adulto mayor y
@@ -91,10 +96,12 @@ la familia no, así que la administración queda en la familia.
   la familia es el rol **estable** (el cuidador puede renunciar o faltar).
   - **Familiar (administra)**: ve la red de apoyo, **crea/gestiona la cuenta del
     adulto mayor** (usuario + PIN), **crea la cuenta de la persona cuidadora**, comparte
-    el **código de invitación** (botón copiar) y puede **desvincular** ("Quitar", con
-    confirmación) a cualquiera de la red menos a sí mismo y al paciente.
-  - **Cuidador (solo lectura)**: ve los datos del adulto mayor, con quién está
-    conectado y el código para copiar, pero sin acciones de gestión.
+    el **código de invitación** (botón copiar), puede **generar un código nuevo** (el
+    anterior deja de servir) y puede **desvincular** ("Quitar", con confirmación) a
+    cualquiera de la red menos a sí mismo y al paciente. Al desvincular, el código se
+    renueva solo.
+  - **Cuidador (solo lectura)**: ve los datos del adulto mayor y con quién está
+    conectado, sin acciones de gestión y **sin el código de invitación**.
 - **Juegos** (dos, con selección previa): **Memorice** (parejas de emojis por temas
   —frutas, autos, objetos, variado— y 3 niveles, sin presión de tiempo; la victoria
   solo se declara cuando la última carta está dada vuelta) y **Sopa de letras**
@@ -165,17 +172,18 @@ permitidos.
 | Método | Ruta | Descripción |
 | ------ | ---- | ----------- |
 | GET    | `/health` | Health check |
-| POST   | `/auth/registro` | Crear cuenta |
+| POST   | `/auth/registro` | Crear cuenta (solo rol CUIDADOR o FAMILIAR) |
 | POST   | `/auth/login` | Iniciar sesión |
 | GET    | `/auth/perfil` | 🔒 Perfil del usuario autenticado |
-| GET    | `/vinculacion/estado` | 🔒 ¿Cuenta vinculada? (y el código, salvo para el paciente) |
-| GET    | `/vinculacion/red` | 🔒 Red de apoyo: adulto mayor, personas conectadas y código |
+| GET    | `/vinculacion/estado` | 🔒 ¿Cuenta vinculada? (el código solo le llega al familiar) |
+| GET    | `/vinculacion/red` | 🔒 Red de apoyo: adulto mayor, personas conectadas y código (este último solo al familiar) |
 | POST   | `/vinculacion/paciente` | 🔒 (FAMILIAR) Crear al adulto mayor y obtener código |
-| POST   | `/vinculacion/unir` | 🔒 Unirse a un adulto mayor con el código |
+| POST   | `/vinculacion/unir` | 🔒 (CUIDADOR, FAMILIAR) Unirse a un adulto mayor con el código |
+| POST   | `/vinculacion/codigo` | 🔒 (FAMILIAR) Generar un código nuevo (el anterior deja de servir) |
 | POST   | `/vinculacion/cuenta-paciente` | 🔒 (FAMILIAR) Crear la cuenta del paciente (usuario + PIN de 4 números) |
 | POST   | `/vinculacion/pin-paciente` | 🔒 (FAMILIAR) Cambiar el PIN del paciente |
 | POST   | `/vinculacion/cuenta-cuidador` | 🔒 (FAMILIAR) Crear la cuenta de la persona cuidadora (ya vinculada) |
-| DELETE | `/vinculacion/miembro/:id` | 🔒 (FAMILIAR) Desvincular a alguien de la red (no al paciente ni a sí mismo) |
+| DELETE | `/vinculacion/miembro/:id` | 🔒 (FAMILIAR) Desvincular a alguien de la red (no al paciente ni a sí mismo); renueva el código |
 | GET    | `/medicamentos` | 🔒 Medicamentos activos |
 | POST   | `/medicamentos` | 🔒 (CUIDADOR, FAMILIAR) Crear |
 | PUT    | `/medicamentos/:id` | 🔒 (CUIDADOR, FAMILIAR) Actualizar |

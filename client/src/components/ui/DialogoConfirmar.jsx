@@ -11,6 +11,10 @@ export function DialogoConfirmar({
   mensaje,
   textoConfirmar = 'Eliminar',
   textoCancelar = 'Cancelar',
+  // por defecto es para borrar; otras acciones (desvincular, renovar el código)
+  // pasan su propio ícono y texto mientras procesa
+  icono = 'trash',
+  textoProcesando = 'Eliminando…',
   procesando = false,
   onConfirmar,
   onCancelar,
@@ -34,7 +38,7 @@ export function DialogoConfirmar({
             {textoCancelar}
           </button>
           <button className="btn btn-danger" onClick={onConfirmar} disabled={procesando}>
-            <Icon name="trash" size={22} /> {procesando ? 'Eliminando…' : textoConfirmar}
+            <Icon name={icono} size={22} /> {procesando ? textoProcesando : textoConfirmar}
           </button>
         </div>
       </div>

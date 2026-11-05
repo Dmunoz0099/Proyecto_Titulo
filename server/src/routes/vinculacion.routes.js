@@ -1,7 +1,9 @@
 // vinculacion.routes.js -> endpoints para asociar la cuenta a un adulto mayor.
 // Todas piden sesión. El FAMILIAR es quien administra: crea al adulto mayor, crea
-// las cuentas del paciente y de la persona cuidadora, y maneja los accesos.
-// Unirse por código lo puede hacer cualquier rol (cuidador, otro familiar...).
+// las cuentas del paciente y de la persona cuidadora, y maneja los accesos
+// (incluido el código de invitación, que solo él ve y renueva).
+// Unirse por código: cuidador u otro familiar (el paciente nunca, su cuenta la
+// crea la familia).
 
 import { Router } from 'express';
 import * as vinculacionController from '../controllers/vinculacion.controller.js';
@@ -21,7 +23,7 @@ const router = Router();
 // todas piden sesión iniciada
 router.use(autenticar);
 
-// ¿estoy vinculado? (y el código si soy cuidador)
+// ¿estoy vinculado? (y el código, solo si soy familiar)
 router.get('/estado', vinculacionController.estado);
 
 // la red de apoyo: adulto mayor + personas conectadas (cualquier rol vinculado)
@@ -44,8 +46,17 @@ router.post(
   vinculacionController.crearPaciente
 );
 
-// cualquiera sin vincular se une con el código
-router.post('/unir', validar(esquemaUnir), vinculacionController.unir);
+// una cuidadora u otro familiar sin vincular se une con el código
+router.post(
+  '/unir',
+  autorizar('CUIDADOR', 'FAMILIAR'),
+  validar(esquemaUnir),
+  vinculacionController.unir
+);
+
+// el familiar genera un código nuevo; el anterior deja de servir al toque
+// (los que ya están conectados no pierden nada)
+router.post('/codigo', autorizar('FAMILIAR'), vinculacionController.renovarCodigo);
 
 // crea la cuenta del paciente (usuario + PIN de 4 números, sin correo). Solo el
 // FAMILIAR, que es el rol estable de la red.

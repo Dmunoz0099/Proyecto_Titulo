@@ -48,9 +48,12 @@ export const esquemaRegistro = z.object({
     .string({ required_error: 'La contraseña es obligatoria' })
     .min(6, 'La contraseña debe tener al menos 6 caracteres'),
 
-  // rol: solo estos tres valores (coinciden con el enum Rol de Prisma/Postgres)
-  rol: z.enum(['PACIENTE', 'CUIDADOR', 'FAMILIAR'], {
-    message: 'El rol debe ser PACIENTE, CUIDADOR o FAMILIAR',
+  // rol: por acá solo se registran cuidadores y familiares. La cuenta del
+  // PACIENTE la crea su familia desde "Familia" (ojo: no basta con esconderlo en
+  // el front, si no cualquiera lo manda directo a la API)
+  rol: z.enum(['CUIDADOR', 'FAMILIAR'], {
+    message:
+      'Solo pueden registrarse cuidadores y familiares. La cuenta del paciente la crea su familia.',
   }),
 });
 
